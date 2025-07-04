@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">SWEN NEWS</string>
+    <string name="app_name">기억지기</string>
+    <string name="goal">목표</string>
+    <string name="home">홈</string>
+    <string name="my">MY</string>
+    <string name="report">기록</string>
 </resources>

@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,18 +12,29 @@ plugins {
 }
 
 android {
-    namespace = "com.example.news"
-    compileSdk = 35
+    namespace = "com.memory.keeper"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.news"
+        applicationId = "com.memory.keeper"
         minSdk = 27
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localProperties.load(localPropertiesFile.inputStream())
+        }
+
+        val kakaoAppKey = localProperties.getProperty("KAKAO_APP_KEY") ?: ""
+        buildConfigField("String", "KAKAO_APP_KEY", "\"${localProperties["KAKAO_APP_KEY"]}\"")
+        buildConfigField("String", "KAKAO_REST_API_KEY", "\"${localProperties["KAKAO_REST_API_KEY"]}\"")
+        manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
     }
+
 
     buildTypes {
         release {
@@ -34,17 +48,17 @@ android {
     kotlin {
         compilerOptions {
             freeCompilerArgs.add("-Xcontext-receivers")
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+            freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -53,6 +67,10 @@ dependencies {
     implementation (libs.hilt.android)
     kapt (libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+
+    // Compose
+    implementation(libs.androidx.material3.window.size.class1)
+    implementation(libs.androidx.material3.adaptive.navigation.suite)
 
     // ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -78,6 +96,9 @@ dependencies {
     ksp (libs.androidx.room.compiler)
     implementation (libs.androidx.room.paging)
     implementation (libs.androidx.datastore.preferences)
+
+    // Kakao
+    implementation (libs.v2.user)
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)
