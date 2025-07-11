@@ -2,6 +2,7 @@ package com.memory.keeper.feature.login
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +28,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
@@ -37,10 +42,13 @@ import com.memory.keeper.navigation.currentComposeNavigator
 import com.memory.keeper.ui.theme.MemoryTheme
 
 @Composable
-fun SignUpScreen(){
+fun SignUpScreen(
+    viewModel: SignUpViewModel = hiltViewModel(),
+){
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val composeNavigator = currentComposeNavigator
+    val name by viewModel.name.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier.fillMaxSize().widthIn(max = 600.dp).windowInsetsPadding(WindowInsets.systemBars).verticalScroll(scrollState),
         verticalArrangement = Arrangement.Center,
@@ -64,15 +72,28 @@ fun SignUpScreen(){
         )
         Image(
             modifier = Modifier.width(350.dp).height(90.dp).clickable {
-                //login("")
                 kakaoLogin(context){ code ->
-                    //login(code)
-                    composeNavigator.navigate(Screen.SelectMode)
+                    viewModel.login(code)
                 }
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"
         )
+    }
+    LaunchedEffect(true) {
+        viewModel.eventFlow.collect { event ->
+            when(event){
+                is SignUpUIEvent.NavigateToNext -> {
+                    name?.let {
+                        composeNavigator.navigate(Screen.SelectMode(it))
+                    }
+                }
+                is SignUpUIEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+            
+        }
     }
 }
 

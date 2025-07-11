@@ -1,5 +1,6 @@
 package com.memory.keeper.feature.login
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,9 +18,10 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,13 +29,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.memory.keeper.R
 import com.memory.keeper.core.Dimens
 import com.memory.keeper.navigation.Screen
@@ -41,43 +45,80 @@ import com.memory.keeper.navigation.currentComposeNavigator
 import com.memory.keeper.ui.theme.MemoryTheme
 
 @Composable
-fun SelectModeScreen(){
-    val enabled = remember { mutableStateOf(false) }
+fun SelectModeScreen(
+    viewModel: SignUpViewModel = hiltViewModel(),
+    name: String
+){
+    var enabled by remember { mutableStateOf(false) }
+    var selectedIndex by remember { mutableIntStateOf(-1) }
+    val mode = listOf("PROTECTOR", "KEEPER")
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val composeNavigator = currentComposeNavigator
+    val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize().widthIn(max = Dimens.maxPhoneWidth).windowInsetsPadding(
             WindowInsets.systemBars).background(MemoryTheme.colors.surface),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SignUpTopBar()
-        SelectModeContent(
-            modifier = Modifier.weight(1f),
-            enabled
-        )
-        SignUpBottomButton(
-            enabled = enabled,
-            onClick = {
-                composeNavigator.navigate(Screen.SetName)
-            },
-            title = "다음"
-        )
+        if(uiState == SignUpUiState.Loading){
+            CircularProgressIndicator(
+                modifier = Modifier.weight(1f),
+                color = MemoryTheme.colors.primary,
+            )
+        }else{
+            SelectModeContent(
+                modifier = Modifier.weight(1f),
+                selectedIndex = selectedIndex,
+                onClick = {
+                    selectedIndex = it
+                    enabled = true
+                }
+            )
+            SignUpBottomButton(
+                enabled = enabled,
+                onClick = {
+                    viewModel.setRole(
+                        mode[selectedIndex]
+                    )
+                },
+                title = "다음"
+            )
+        }
+    }
+    LaunchedEffect(true) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is SignUpUIEvent.NavigateToNext -> {
+                    when(selectedIndex){
+                        0 -> {
+                            composeNavigator.navigate(Screen.SearchUser(name))
+                        }
+                        1 -> {
+                            composeNavigator.navigate(Screen.SignUpFinish(name))
+                        }
+                    }
+                }
+                is SignUpUIEvent.ShowToast -> {
+                    // Handle error
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun SelectModeContent(
     modifier: Modifier,
-    enabled : MutableState<Boolean>
+    selectedIndex: Int,
+    onClick: (Int) -> Unit
 ){
-    var selectedIndex by remember { mutableIntStateOf(0) }
-    if(selectedIndex != 0) {
-        enabled.value = true
-    }
     Column(
         modifier = modifier.widthIn(Dimens.maxPhoneWidth).padding(
             horizontal = Dimens.gapLarge),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Text(
             text = "보호자 / 사용자 모드 중 하나를 선택해주세요",
@@ -92,12 +133,12 @@ fun SelectModeContent(
         ) {
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = if(selectedIndex == 1) MemoryTheme.colors.optionFocused else MemoryTheme.colors.optionUnfocused,
+                    containerColor = if(selectedIndex == 0) MemoryTheme.colors.optionFocused else MemoryTheme.colors.optionUnfocused,
                 ),
                 shape = RoundedCornerShape(Dimens.cornerRadius),
-                border = BorderStroke(width = 1.dp, color = if(selectedIndex == 1) MemoryTheme.colors.optionBorderFocused else MemoryTheme.colors.optionBorderUnfocused),
+                border = BorderStroke(width = 1.dp, color = if(selectedIndex == 0) MemoryTheme.colors.optionBorderFocused else MemoryTheme.colors.optionBorderUnfocused),
                 onClick = {
-                    selectedIndex = 1
+                    onClick(0)
                 }
             ) {
                 Row(
@@ -110,12 +151,12 @@ fun SelectModeContent(
                         Text(
                             text = "보호자",
                             style = MemoryTheme.typography.headlineLarge,
-                            color = if(selectedIndex == 1) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary
+                            color = if(selectedIndex == 0) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary
                         )
                         Text(
                             text = "기억지기 사용을 위해서는 보호자의 사진 업로드 및 설정을 필요로 합니다",
                             style = MemoryTheme.typography.body,
-                            color = if(selectedIndex == 1) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary,
+                            color = if(selectedIndex == 0) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary,
                             softWrap = true
                         )
                     }
@@ -123,19 +164,19 @@ fun SelectModeContent(
                         imageVector = ImageVector.vectorResource(R.drawable.parent),
                         contentDescription = "parent icon",
                         colorFilter = ColorFilter.tint(
-                            if(selectedIndex == 1) MemoryTheme.colors.primary else MemoryTheme.colors.optionBorderUnfocused
+                            if(selectedIndex == 0) MemoryTheme.colors.primary else MemoryTheme.colors.optionBorderUnfocused
                         )
                     )
                 }
             }
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = if(selectedIndex == 2) MemoryTheme.colors.optionFocused else MemoryTheme.colors.optionUnfocused,
+                    containerColor = if(selectedIndex == 1) MemoryTheme.colors.optionFocused else MemoryTheme.colors.optionUnfocused,
                 ),
                 shape = RoundedCornerShape(Dimens.cornerRadius),
-                border = BorderStroke(width = 1.dp, color = if(selectedIndex == 2) MemoryTheme.colors.optionBorderFocused else MemoryTheme.colors.optionBorderUnfocused),
+                border = BorderStroke(width = 1.dp, color = if(selectedIndex == 1) MemoryTheme.colors.optionBorderFocused else MemoryTheme.colors.optionBorderUnfocused),
                 onClick = {
-                    selectedIndex = 2
+                    onClick(1)
                 }
             ) {
                 Row(
@@ -148,12 +189,12 @@ fun SelectModeContent(
                         Text(
                             text = "기억지기",
                             style = MemoryTheme.typography.headlineLarge,
-                            color = if(selectedIndex == 2) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary
+                            color = if(selectedIndex == 1) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary
                         )
                         Text(
                             text = "어플을 통해 치매예방을 필요로 하는 분을 위한 어플사용 모드 입니다",
                             style = MemoryTheme.typography.body,
-                            color = if(selectedIndex == 2) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary,
+                            color = if(selectedIndex == 1) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary,
                             softWrap = true
                         )
                     }
@@ -161,7 +202,7 @@ fun SelectModeContent(
                         imageVector = ImageVector.vectorResource(R.drawable.keeper),
                         contentDescription = "parent icon",
                         colorFilter = ColorFilter.tint(
-                            if(selectedIndex == 2) MemoryTheme.colors.primary else MemoryTheme.colors.optionBorderUnfocused
+                            if(selectedIndex == 1) MemoryTheme.colors.primary else MemoryTheme.colors.optionBorderUnfocused
                         )
                     )
                 }
@@ -174,7 +215,9 @@ fun SelectModeContent(
 @Composable
 fun SelectModeScreenPreview(){
     MemoryTheme {
-        SelectModeScreen()
+        SelectModeScreen(
+            name = "홍길동"
+        )
     }
 }
 
@@ -182,6 +225,8 @@ fun SelectModeScreenPreview(){
 @Composable
 fun SelectModeTabletScreenPreview(){
     MemoryTheme {
-        SelectModeScreen()
+        SelectModeScreen(
+            name = "홍길동"
+        )
     }
 }
