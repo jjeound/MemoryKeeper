@@ -5,6 +5,10 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.memory.keeper.core.Constants.BASE_URL
 import com.memory.keeper.data.repository.TokenRepository
+import com.memory.keeper.data.service.AIService
+import com.memory.keeper.data.service.SignUpService
+import com.memory.keeper.data.service.TokenService
+import com.memory.keeper.data.service.UserService
 import com.memory.keeper.data.util.AuthAuthenticator
 import com.memory.keeper.data.util.AuthInterceptor
 import dagger.Module
@@ -54,4 +58,27 @@ object NetworkModule {
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun provideAIService(retrofit: Retrofit): AIService {
+        return retrofit.create(AIService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLoginService(retrofit: Retrofit): SignUpService {
+        return retrofit.create(SignUpService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenService(retrofit: Retrofit): TokenService{
+        return retrofit.create(TokenService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserService(retrofit: Retrofit): UserService{
+        return retrofit.create(UserService::class.java)
+    }
 }
