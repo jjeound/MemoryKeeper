@@ -12,11 +12,13 @@ sealed interface Screen{
     @Serializable
     data object SignUp: Screen
     @Serializable
-    data object SelectMode: Screen
+    data class SelectMode(val name: String): Screen
     @Serializable
-    data object SetName: Screen
+    data class SearchUser(val name: String): Screen
     @Serializable
-    data class SetRelation(val name: String, val userName: String): Screen
+    data class SetRelation(val name: String, val userName: String, val userId: Long): Screen
+    @Serializable
+    data class SignUpFinish(val name: String): Screen
 }
 
 sealed interface Graph {

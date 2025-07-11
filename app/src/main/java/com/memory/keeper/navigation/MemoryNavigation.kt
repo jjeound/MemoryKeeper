@@ -6,9 +6,10 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.memory.keeper.feature.home.HomeScreen
 import com.memory.keeper.feature.login.SelectModeScreen
+import com.memory.keeper.feature.login.SignUpFinishScreen
 import com.memory.keeper.feature.login.SignUpRelationScreen
 import com.memory.keeper.feature.login.SignUpScreen
-import com.memory.keeper.feature.login.SignUpSetNameScreen
+import com.memory.keeper.feature.login.SignUpSearchUserScreen
 
 fun NavGraphBuilder.memoryNavigation() {
     navigation<Graph.SignUpGraph>(
@@ -18,16 +19,25 @@ fun NavGraphBuilder.memoryNavigation() {
             SignUpScreen()
         }
         composable<Screen.SelectMode> {
-            SelectModeScreen()
+            val args = it.toRoute<Screen.SelectMode>()
+            SelectModeScreen(name = args.name)
         }
-        composable<Screen.SetName> {
-            SignUpSetNameScreen()
+        composable<Screen.SearchUser> {
+            val args = it.toRoute<Screen.SearchUser>()
+            SignUpSearchUserScreen(name = args.name)
         }
         composable<Screen.SetRelation> {
             val args = it.toRoute<Screen.SetRelation>()
             SignUpRelationScreen(
                 name = args.name,
-                userName = args.userName
+                userName = args.userName,
+                userId = args.userId,
+            )
+        }
+        composable<Screen.SignUpFinish> {
+            val args = it.toRoute<Screen.SignUpFinish>()
+            SignUpFinishScreen(
+                name = args.name,
             )
         }
     }
