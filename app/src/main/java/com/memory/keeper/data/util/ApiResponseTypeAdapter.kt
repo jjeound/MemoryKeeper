@@ -1,6 +1,6 @@
 package com.memory.keeper.data.util
 
-import com.memory.keeper.data.dto.ApiResponse
+import com.memory.keeper.data.dto.response.ApiResponse
 import com.google.gson.JsonParser
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader

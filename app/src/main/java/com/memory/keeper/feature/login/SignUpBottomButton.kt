@@ -22,7 +22,7 @@ fun SignUpBottomButton(
     Button(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Dimens.gapHuge),
+            .padding(horizontal = Dimens.gapLarge),
         shape = RoundedCornerShape(Dimens.cornerRadius),
         colors = ButtonDefaults.buttonColors(
             containerColor = MemoryTheme.colors.primary,

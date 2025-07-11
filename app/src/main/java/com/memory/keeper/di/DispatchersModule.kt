@@ -1,7 +1,7 @@
 package com.memory.keeper.di
 
+import com.memory.keeper.data.AppDispatchers
 import com.memory.keeper.data.Dispatcher
-import com.memory.keeper.data.NewsAppDispatchers
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,6 +14,6 @@ import kotlinx.coroutines.Dispatchers
 internal object DispatchersModule {
 
     @Provides
-    @Dispatcher(NewsAppDispatchers.IO)
+    @Dispatcher(AppDispatchers.IO)
     fun providesIODispatcher(): CoroutineDispatcher = Dispatchers.IO
 }

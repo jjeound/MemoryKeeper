@@ -31,11 +31,17 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.memory.keeper.core.Dimens
+import com.memory.keeper.navigation.Screen
+import com.memory.keeper.navigation.currentComposeNavigator
 import com.memory.keeper.ui.theme.MemoryTheme
 
 @Composable
-fun SignUpRelationScreen(){
+fun SignUpRelationScreen(
+    name: String,
+    userName: String
+){
     val enabled = remember { mutableStateOf(false) }
+    val composeNavigator = currentComposeNavigator
     Column(
         modifier = Modifier.fillMaxSize().widthIn(max = Dimens.maxPhoneWidth).windowInsetsPadding(
             WindowInsets.systemBars).background(MemoryTheme.colors.surface),
@@ -44,11 +50,17 @@ fun SignUpRelationScreen(){
         SignUpTopBar()
         SignUpRelationContent(
             modifier = Modifier.weight(1f),
-            enabled = enabled
+            enabled = enabled,
+            name = name,
+            userName = userName
         )
         SignUpBottomButton(
             enabled = enabled,
-            onClick = {},
+            onClick = {
+                composeNavigator.navigate(
+                    Screen.Home
+                )
+            },
             title = "다음"
         )
     }
@@ -57,7 +69,9 @@ fun SignUpRelationScreen(){
 @Composable
 fun SignUpRelationContent(
     modifier: Modifier,
-    enabled : MutableState<Boolean>
+    enabled : MutableState<Boolean>,
+    name: String,
+    userName: String
 ){
     var selectedIndex by remember { mutableIntStateOf(-1) }
     val relationship = listOf("아들", "딸", "친척", "친구", "요양보호사", "기타")
@@ -71,7 +85,7 @@ fun SignUpRelationContent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "박유진님과 박성근님의 관계를 선택해주세요",
+            text = "${name}님과 ${userName}님의\n관계를 선택해주세요",
             style = MemoryTheme.typography.headlineLarge,
             color = MemoryTheme.colors.textPrimary
         )
@@ -141,7 +155,10 @@ fun SignUpRelationContent(
 @Composable
 fun SignUpRelationScreenPreview(){
     MemoryTheme {
-        SignUpRelationScreen()
+        SignUpRelationScreen(
+            name = "박유진",
+            userName = "박성근"
+        )
     }
 }
 
@@ -149,6 +166,9 @@ fun SignUpRelationScreenPreview(){
 @Composable
 fun SignUpRelationScreenTabletPreview(){
     MemoryTheme {
-        SignUpRelationScreen()
+        SignUpRelationScreen(
+            name = "박유진",
+            userName = "박성근"
+        )
     }
 }

@@ -36,11 +36,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.memory.keeper.R
 import com.memory.keeper.core.Dimens
+import com.memory.keeper.navigation.Screen
+import com.memory.keeper.navigation.currentComposeNavigator
 import com.memory.keeper.ui.theme.MemoryTheme
 
 @Composable
 fun SelectModeScreen(){
     val enabled = remember { mutableStateOf(false) }
+    val composeNavigator = currentComposeNavigator
     Column(
         modifier = Modifier.fillMaxSize().widthIn(max = Dimens.maxPhoneWidth).windowInsetsPadding(
             WindowInsets.systemBars).background(MemoryTheme.colors.surface),
@@ -53,7 +56,9 @@ fun SelectModeScreen(){
         )
         SignUpBottomButton(
             enabled = enabled,
-            onClick = {},
+            onClick = {
+                composeNavigator.navigate(Screen.SetName)
+            },
             title = "다음"
         )
     }

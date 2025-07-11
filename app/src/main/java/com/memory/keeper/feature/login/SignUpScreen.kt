@@ -32,12 +32,15 @@ import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.memory.keeper.R
 import com.memory.keeper.core.Dimens
+import com.memory.keeper.navigation.Screen
+import com.memory.keeper.navigation.currentComposeNavigator
 import com.memory.keeper.ui.theme.MemoryTheme
 
 @Composable
 fun SignUpScreen(){
     val scrollState = rememberScrollState()
     val context = LocalContext.current
+    val composeNavigator = currentComposeNavigator
     Column(
         modifier = Modifier.fillMaxSize().widthIn(max = 600.dp).windowInsetsPadding(WindowInsets.systemBars).verticalScroll(scrollState),
         verticalArrangement = Arrangement.Center,
@@ -64,6 +67,7 @@ fun SignUpScreen(){
                 //login("")
                 kakaoLogin(context){ code ->
                     //login(code)
+                    composeNavigator.navigate(Screen.SelectMode)
                 }
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
@@ -75,7 +79,7 @@ fun SignUpScreen(){
 private fun kakaoLogin(context: Context, onResult: (String) -> Unit){
     val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         if (error != null) {
-            Log.d("Login", "카카오계정으로 로그인 실패")
+            Log.d("Login", error.message.toString())
         } else if (token != null) {
             onResult(token.accessToken)
             Log.d("Login", "카카오계정으로 로그인 성공 ${token.accessToken}")

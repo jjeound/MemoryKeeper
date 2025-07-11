@@ -6,28 +6,26 @@ sealed interface Screen{
     @Serializable
     data object Home: Screen
     @Serializable
-    data class More(val isHot: Boolean): Screen
-    @Serializable
-    data class Detail(val id: String): Screen
-    @Serializable
-    data object Setting: Screen
-    @Serializable
-    data class SettingDetail(val order: Int): Screen
-    @Serializable
-    data object Goal: Screen
-    @Serializable
     data object Report: Screen
     @Serializable
     data object My: Screen
+    @Serializable
+    data object SignUp: Screen
+    @Serializable
+    data object SelectMode: Screen
+    @Serializable
+    data object SetName: Screen
+    @Serializable
+    data class SetRelation(val name: String, val userName: String): Screen
 }
 
 sealed interface Graph {
     @Serializable
     data object HomeGraph : Graph
     @Serializable
-    data object GoalGraph : Graph
-    @Serializable
     data object ReportGraph : Graph
     @Serializable
     data object MyGraph : Graph
+    @Serializable
+    data object SignUpGraph : Graph
 }

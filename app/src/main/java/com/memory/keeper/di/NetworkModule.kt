@@ -1,10 +1,12 @@
 package com.memory.keeper.di
 
-import com.memory.keeper.data.service.NewsClient
-import com.memory.keeper.data.service.NewsService
 import com.memory.keeper.data.util.ApiResponseAdapterFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.memory.keeper.core.Constants.BASE_URL
+import com.memory.keeper.data.repository.TokenRepository
+import com.memory.keeper.data.util.AuthAuthenticator
+import com.memory.keeper.data.util.AuthInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,8 +31,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(tokenRepository: TokenRepository): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(tokenRepository))
+            .authenticator(AuthAuthenticator(tokenRepository))
             .connectTimeout(30, TimeUnit.SECONDS)   // 연결 타임아웃
             .readTimeout(30, TimeUnit.SECONDS)      // 응답 타임아웃
             .writeTimeout(30, TimeUnit.SECONDS)     // 요청 타임아웃
@@ -44,21 +48,10 @@ object NetworkModule {
         okHttpClient: OkHttpClient
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://newsbiasinsight.netlify.app/")
+            .baseUrl(BASE_URL)
             .client(okHttpClient) // OkHttpClient 주입
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
-    @Provides
-    @Singleton
-    fun provideNewsService(retrofit: Retrofit): NewsService {
-        return retrofit.create(NewsService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideNewsClient(newsService: NewsService): NewsClient {
-        return NewsClient(newsService)
-    }
 }

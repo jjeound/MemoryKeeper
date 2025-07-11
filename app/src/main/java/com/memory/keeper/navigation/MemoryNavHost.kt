@@ -5,10 +5,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 
 @Composable
-fun MemoryNavHost(navHostController: NavHostController) {
+fun MemoryNavHost(
+    navHostController: NavHostController,
+) {
     NavHost(
         navController = navHostController,
-        startDestination = Screen.Home,
+        startDestination = Graph.HomeGraph,
     ) {
         memoryNavigation()
     }
