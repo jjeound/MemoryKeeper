@@ -1,8 +1,6 @@
 package com.memory.keeper.feature.main
 
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import com.memory.keeper.R
 import com.memory.keeper.navigation.Screen
 
