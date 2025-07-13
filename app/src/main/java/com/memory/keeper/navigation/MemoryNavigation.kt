@@ -10,6 +10,10 @@ import com.memory.keeper.feature.login.SignUpFinishScreen
 import com.memory.keeper.feature.login.SignUpRelationScreen
 import com.memory.keeper.feature.login.SignUpScreen
 import com.memory.keeper.feature.login.SignUpSearchUserScreen
+import com.memory.keeper.feature.my.MyScreen
+import com.memory.keeper.feature.notification.NotificationScreen
+import com.memory.keeper.feature.prompt.PromptScreen
+import com.memory.keeper.feature.record.RecordScreen
 
 fun NavGraphBuilder.memoryNavigation() {
     navigation<Graph.SignUpGraph>(
@@ -41,6 +45,13 @@ fun NavGraphBuilder.memoryNavigation() {
             )
         }
     }
+    navigation<Graph.PromptGraph>(
+        startDestination = Screen.Prompt
+    ){
+        composable<Screen.Prompt> {
+            PromptScreen()
+        }
+    }
     navigation<Graph.HomeGraph>(
         startDestination = Screen.Home
     ){
@@ -48,18 +59,38 @@ fun NavGraphBuilder.memoryNavigation() {
             HomeScreen()
         }
     }
-    navigation<Graph.ReportGraph>(
-        startDestination = Screen.Report
+    navigation<Graph.RecordGraph>(
+        startDestination = Screen.Record
     ){
-        composable<Screen.Report> {
-            HomeScreen()
+        composable<Screen.Record> {
+            RecordScreen()
         }
     }
     navigation<Graph.MyGraph>(
         startDestination = Screen.My
     ){
         composable<Screen.My> {
-            HomeScreen()
+            MyScreen()
         }
+        composable<Screen.SearchUser> {
+            val args = it.toRoute<Screen.SearchUser>()
+            SignUpSearchUserScreen(
+                name = args.name,
+                title = "관계 설정하기"
+            )
+        }
+        composable<Screen.SetRelation> {
+            val args = it.toRoute<Screen.SetRelation>()
+            SignUpRelationScreen(
+                name = args.name,
+                userName = args.userName,
+                userId = args.userId,
+                title = "관계 설정하기",
+                fromMy = true
+            )
+        }
+    }
+    composable<Screen.Notification>{
+        NotificationScreen()
     }
 }

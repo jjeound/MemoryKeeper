@@ -10,7 +10,7 @@ fun MemoryNavHost(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = Graph.HomeGraph,
+        startDestination = Graph.SignUpGraph,
     ) {
         memoryNavigation()
     }
