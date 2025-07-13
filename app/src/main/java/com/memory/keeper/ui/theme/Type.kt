@@ -29,6 +29,7 @@ data class CustomTypography(
     val media: TextStyle,
     val description: TextStyle,
     val menu: TextStyle,
+    val boxText: TextStyle,
 ){
     companion object {
         @Composable
@@ -36,7 +37,7 @@ data class CustomTypography(
             appBarTitle = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp),
             option = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
             headlineSmall = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp),
-            header = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp),
+            header = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 21.sp),
             headlineLarge = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp, lineHeight = 30.sp),
             viewAll = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
             more = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Light, fontSize = 12.sp),
@@ -53,6 +54,7 @@ data class CustomTypography(
             media = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
             description = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
             menu = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 16.sp),
+            boxText = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 13.sp)
         )
     }
 }
