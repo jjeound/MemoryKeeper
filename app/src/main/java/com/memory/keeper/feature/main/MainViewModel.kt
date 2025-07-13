@@ -14,6 +14,4 @@ class MainViewModel @Inject constructor(
 
     private val _startDestination = MutableStateFlow<Graph>(Graph.SignUpGraph)
     val startDestination = _startDestination.asStateFlow()
-
-
 }

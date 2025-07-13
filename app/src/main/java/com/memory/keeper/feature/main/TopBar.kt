@@ -26,15 +26,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.memory.keeper.R
 import com.memory.keeper.core.Dimens
+import com.memory.keeper.navigation.Screen
+import com.memory.keeper.navigation.currentComposeNavigator
 import com.memory.keeper.ui.theme.MemoryTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
+    isPatient: Boolean,
+    isHome: Boolean = false,
+    userName: String? = "보호자",
     selectedIndex: Int,
     onClick: (Int) -> Unit
 ) {
-    //val composeNavigator = currentComposeNavigator
+    val composeNavigator = currentComposeNavigator
     Column {
         TopAppBar(
             title = {
@@ -59,7 +64,11 @@ fun TopBar(
             ),
             actions = {
                 IconButton(
-                    onClick = {},
+                    onClick = {
+                        composeNavigator.navigate(
+                            Screen.Notification
+                        )
+                    },
                 ) {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.notification),
@@ -89,7 +98,7 @@ fun TopBar(
                 contentAlignment = Alignment.Center,
             ){
                 Text(
-                    text = "보호자",
+                    text = "${userName ?: "보호자"}님",
                     style = MemoryTheme.typography.button,
                     color = MemoryTheme.colors.textOnPrimary,
                 )
@@ -103,15 +112,19 @@ fun TopBar(
                             topStart = Dimens.cornerRadius
                         )
                     ).clickable{
-                        onClick(1)
+                        if(isPatient){
+                            onClick(1)
+                        }
                     },
                 contentAlignment = Alignment.Center,
             ){
-                Text(
-                    text = "박성근 님",
-                    style = MemoryTheme.typography.button,
-                    color = MemoryTheme.colors.textOnPrimary,
-                )
+                if(isHome && isPatient){
+                    Text(
+                        text = "대화하기",
+                        style = MemoryTheme.typography.button,
+                        color = MemoryTheme.colors.textOnPrimary,
+                    )
+                }
             }
         }
     }
@@ -121,6 +134,6 @@ fun TopBar(
 @Composable
 fun TopBarPreview() {
     MemoryTheme {
-        TopBar(0, onClick = {})
+        TopBar(isPatient = false, isHome = true, userName = "박성근", selectedIndex = 0, onClick = {})
     }
 }

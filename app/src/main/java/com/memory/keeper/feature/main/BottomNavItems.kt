@@ -10,7 +10,8 @@ enum class BottomNavItems(
     @StringRes val contentDescription: Int,
     val route: Screen
 ) {
-    REPORT(R.string.report, R.drawable.report, R.string.report, Screen.Report),
+    PROMPT(R.string.prompt, R.drawable.prompt, R.string.prompt, Screen.Prompt),
     HOME(R.string.home, R.drawable.home, R.string.home, Screen.Home),
+    REPORT(R.string.report, R.drawable.report, R.string.report, Screen.Record),
     MY(R.string.my, R.drawable.my, R.string.my, Screen.My),
 }
