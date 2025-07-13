@@ -10,6 +10,7 @@ object Dimens {
     val gapMedium = 10.dp
     val gapSmall = 4.dp
     val cornerRadius = 12.dp
+    val boxCornerRadius = 24.dp
     val circle = 48.dp
     val border = 1.dp
     val homeHorizontalPadding = 30.dp
