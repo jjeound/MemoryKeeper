@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import java.util.Properties
 
 plugins {
@@ -99,6 +98,10 @@ dependencies {
 
     // Kakao
     implementation (libs.v2.user)
+
+    // video player
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.coil.compose)
