@@ -24,9 +24,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -37,11 +40,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
@@ -58,20 +66,32 @@ import java.io.File
 
 @Composable
 fun DayDetailScreen() {
+    var dateOfPic by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(Dimens.gapMedium)
+        modifier = Modifier.fillMaxSize().padding(horizontal = Dimens.gapLarge),
+        verticalArrangement = Arrangement.spacedBy(Dimens.gapMedium),
     ) {
         PictureBox()
-        PeriodOfPic()
-        DescriptionOfPic(
-            description = description,
+        ContentBox(
+            title = "사진촬영시기",
+            text = dateOfPic,
+            placeHolder = "날짜를 입력해 주세요",
+            onChange = { it ->
+                dateOfPic = it
+            },
+            focusManager = focusManager
+        )
+        ContentBox(
+            title = "상세설명",
+            text = description,
+            placeHolder = "상세설명을 입력해 주세요",
             onChange = { it ->
                 description = it
-            }
+            },
+            focusManager = focusManager
         )
-        EmotionsOfPic()
     }
 }
 
@@ -120,24 +140,40 @@ fun PictureBox() {
             }
         )
     Card(
-        modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight().padding(Dimens.gapLarge),
+        modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight(),
         colors = CardDefaults.cardColors(
             containerColor = MemoryTheme.colors.box,
         ),
-        shape = RoundedCornerShape(Dimens.cornerRadius)
+        shape = RoundedCornerShape(Dimens.boxCornerRadius)
     ) {
         Column(
-            modifier = Modifier.padding(Dimens.gapLarge),
-            verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
+            modifier = Modifier.padding(Dimens.gapLarge)
+                .padding(bottom = Dimens.gapMedium),
+            verticalArrangement = Arrangement.spacedBy(Dimens.gapMedium)
         ) {
-            Text(
-                text = "업로드할 사진",
-                style = MemoryTheme.typography.header,
-                color = MemoryTheme.colors.textOnPrimary
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "업로드할 사진",
+                    style = MemoryTheme.typography.boxText,
+                    color = MemoryTheme.colors.textSecondary
+                )
+                IconButton(
+                    onClick = {}
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.upload),
+                        contentDescription = "upload",
+                        tint = Color.Unspecified,
+                    )
+                }
+            }
             Box(
                 modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                    .border(1.dp, color = MemoryTheme.colors.buttonBorderUnfocused, shape = RoundedCornerShape(
+                    .border(1.dp, color = MemoryTheme.colors.textSecondary, shape = RoundedCornerShape(
                         Dimens.cornerRadius))
                     .clickable{
                         when {
@@ -173,7 +209,7 @@ fun PictureBox() {
                        Text(
                            text = "사진을 업로드 해주세요.",
                            style = MemoryTheme.typography.body,
-                           color = MemoryTheme.colors.textOnPrimary
+                           color = MemoryTheme.colors.textSecondary
                        )
                    }
                } else {
@@ -204,126 +240,62 @@ fun PictureBox() {
 }
 
 @Composable
-fun PeriodOfPic(){
-    Card(
-        modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight().padding(Dimens.gapLarge),
-        colors = CardDefaults.cardColors(
-            containerColor = MemoryTheme.colors.box,
-        ),
-        shape = RoundedCornerShape(Dimens.cornerRadius)
-    ) {
-        Column(
-            modifier = Modifier.padding(Dimens.gapLarge),
-            verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
-        ) {
-            Text(
-                text = "사진 촬영 시기",
-                style = MemoryTheme.typography.header,
-                color = MemoryTheme.colors.textOnPrimary
-            )
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ){
-                Text(
-                    text = "1975년 5월 --일",
-                    style = MemoryTheme.typography.keywordLarge,
-                    color = MemoryTheme.colors.textOnPrimary
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun DescriptionOfPic(
-    description: String,
-    onChange: (String) -> Unit
+fun ContentBox(
+    title: String,
+    text: String,
+    placeHolder: String,
+    onChange: (String) -> Unit,
+    focusManager: FocusManager
 ){
     Card(
-        modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight().padding(Dimens.gapLarge),
+        modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight(),
         colors = CardDefaults.cardColors(
             containerColor = MemoryTheme.colors.box,
         ),
-        shape = RoundedCornerShape(Dimens.cornerRadius)
+        shape = RoundedCornerShape(Dimens.boxCornerRadius)
     ) {
         Column(
-            modifier = Modifier.padding(Dimens.gapLarge),
+            modifier = Modifier.padding(Dimens.gapLarge)
+                .padding(vertical = Dimens.gapMedium),
             verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
         ) {
             Text(
-                text = "상세 설명",
-                style = MemoryTheme.typography.header,
-                color = MemoryTheme.colors.textOnPrimary
+                text = title,
+                style = MemoryTheme.typography.boxText,
+                color = MemoryTheme.colors.textSecondary
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                value = description,
+                value = text,
                 onValueChange = {
                     onChange(it)
                 },
+                textStyle = MemoryTheme.typography.boxText,
                 placeholder = {
                     Text(
-                        text = "상세설명을 입력해 주세요",
-                        style = MemoryTheme.typography.body,
+                        text = placeHolder,
+                        style = MemoryTheme.typography.boxText,
                         color = MemoryTheme.colors.textSecondary
                     )
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = MemoryTheme.colors.buttonBorderUnfocused,
-                    focusedBorderColor = MemoryTheme.colors.buttonBorderUnfocused,
+                    unfocusedBorderColor = MemoryTheme.colors.textSecondary,
+                    focusedBorderColor = MemoryTheme.colors.textSecondary,
                     focusedContainerColor = MemoryTheme.colors.box,
                     unfocusedContainerColor = MemoryTheme.colors.box,
                     focusedTextColor = MemoryTheme.colors.textOnPrimary,
                     unfocusedTextColor = MemoryTheme.colors.textOnPrimary
                 ),
-                shape = RoundedCornerShape(Dimens.cornerRadius)
+                shape = RoundedCornerShape(Dimens.cornerRadius),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions (
+                    onDone = { focusManager.clearFocus() },
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                )
             )
-        }
-    }
-}
-
-@Composable
-fun EmotionsOfPic(){
-    val emojis = listOf(
-        R.drawable.love,
-        R.drawable.sad,
-        R.drawable.interesting,
-        R.drawable.tired,
-        R.drawable.happy,
-        R.drawable.angry
-    )
-    Card(
-        modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight().padding(Dimens.gapLarge),
-        colors = CardDefaults.cardColors(
-            containerColor = MemoryTheme.colors.box,
-        ),
-        shape = RoundedCornerShape(Dimens.cornerRadius)
-    ) {
-        Column(
-            modifier = Modifier.padding(Dimens.gapLarge),
-            verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
-        ) {
-            Text(
-                text = "사진의 기분",
-                style = MemoryTheme.typography.header,
-                color = MemoryTheme.colors.textOnPrimary
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                emojis.forEach {
-                    AsyncImage(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(Dimens.gapSmall)
-                            .clickable { /* Handle emoji click */ },
-                        model = it,
-                        contentDescription = "emoji",
-                        contentScale = ContentScale.Crop
-                    )
-                }
-            }
         }
     }
 }

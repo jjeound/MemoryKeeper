@@ -16,18 +16,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
@@ -41,23 +47,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import com.memory.keeper.R
 import com.memory.keeper.core.Dimens
 import com.memory.keeper.feature.main.TopBar
 import com.memory.keeper.ui.theme.MemoryTheme
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 
 @Composable
 fun HomeScreen(
-    //homeViewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
+    val role by viewModel.role.collectAsStateWithLifecycle()
+    val userName by viewModel.userName.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         TopBar(
+            isPatient = role == "PATIENT",
+            isHome = true,
+            userName = userName,
             selectedIndex = selectedIndex,
             onClick = { index ->
                 selectedIndex = index
@@ -65,35 +79,67 @@ fun HomeScreen(
         )
         when(selectedIndex){
             0 -> HomeContent()
-            1 -> HomeUserContent()
+            1 -> HomeUserContent(
+                viewModel = viewModel
+            )
         }
     }
 }
 
 @Composable
-fun HomeContent(){
+private fun HomeContent(){
     var showDetail by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableIntStateOf(-1) }
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val isTablet = with(adaptiveInfo) {
         windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
     }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val isAtTop by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+        }
+    }
     if(!isTablet){
-        LazyColumn(
-            modifier = Modifier.padding(Dimens.gapLarge),
-            verticalArrangement = Arrangement.spacedBy(Dimens.gapHuge)
-        ) {
-            item {
-                SimpleCalendar(
-                    onClick = {
-                        showDetail = true
-                        selectedDay = it
-                    }
-                )
-            }
-            if(showDetail && selectedDay != -1){
+        Box(modifier = Modifier.fillMaxSize()){
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = Dimens.gapMedium, vertical = Dimens.gapLarge),
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge),
+            ) {
                 item {
-                    DayDetailScreen()
+                    SimpleCalendar(
+                        onClick = {
+                            showDetail = true
+                            selectedDay = it
+                        }
+                    )
+                }
+                if(showDetail && selectedDay != -1){
+                    item {
+                        DayDetailScreen()
+                    }
+                }
+            }
+            if(!isAtTop){
+                FloatingActionButton(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(Dimens.gapLarge),
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp),
+                    containerColor = Color.Unspecified,
+                    onClick = {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(0)
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.go_up),
+                        contentDescription = "go up",
+                        tint = Color.Unspecified
+                    )
                 }
             }
         }
@@ -122,12 +168,14 @@ fun HomeContent(){
 }
 
 @Composable
-fun HomeUserContent(){
+private fun HomeUserContent(viewModel: HomeViewModel){
     Column(
         modifier = Modifier.padding(Dimens.gapLarge),
         verticalArrangement = Arrangement.spacedBy(Dimens.gapHuge)
     ) {
-        AIChatScreen()
+        AIChatScreen(
+            viewModel = viewModel
+        )
     }
 }
 
