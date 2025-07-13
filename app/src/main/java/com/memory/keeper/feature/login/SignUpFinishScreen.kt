@@ -2,9 +2,11 @@ package com.memory.keeper.feature.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
@@ -78,10 +80,15 @@ fun SignUpContent(
                 color = MemoryTheme.colors.textThird
             )
         }
-        AsyncImage(
-            model = R.drawable.logo,
-            contentDescription = "logo",
-        )
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ){
+            AsyncImage(
+                model = R.drawable.logo,
+                contentDescription = "logo",
+            )
+        }
     }
 }
 

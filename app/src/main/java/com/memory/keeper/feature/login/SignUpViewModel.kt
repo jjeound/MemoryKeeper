@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memory.keeper.core.Resource
 import com.memory.keeper.data.dto.response.UserSearched
+import com.memory.keeper.data.repository.LoginRepository
 import com.memory.keeper.data.repository.SignUpRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,10 +18,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val loginRepository: SignUpRepository
+    private val loginRepository: LoginRepository,
+    private val signUpRepository: SignUpRepository
 ): ViewModel() {
-    val uiState: MutableStateFlow<SignUpUiState> =
-        MutableStateFlow(SignUpUiState.Loading)
+    val uiState: MutableStateFlow<SignUpUIState> =
+        MutableStateFlow(SignUpUIState.Idle)
 
     private val _eventFlow: MutableSharedFlow<SignUpUIEvent> = MutableSharedFlow()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -38,14 +40,35 @@ class SignUpViewModel @Inject constructor(
                     is Resource.Success -> {
                         _name.value = it.data?.name
                         _eventFlow.emit(SignUpUIEvent.NavigateToNext)
-                        uiState.value = SignUpUiState.Idle
+                        uiState.value = SignUpUIState.Idle
                     }
                     is Resource.Error -> {
                         _eventFlow.emit(SignUpUIEvent.ShowToast(it.message ?: "알 수 없는 오류가 발생했어요."))
-                        uiState.value = SignUpUiState.Error(it.message)
+                        uiState.value = SignUpUIState.Error(it.message)
                     }
                     is Resource.Loading -> {
-                        uiState.value = SignUpUiState.Loading
+                        uiState.value = SignUpUIState.Loading
+                    }
+                }
+            }
+        }
+    }
+
+    fun testLogin(email: String){
+        viewModelScope.launch {
+            loginRepository.testLogin(email).collectLatest {
+                when(it) {
+                    is Resource.Success -> {
+                        _name.value = "테스트 유저"
+                        _eventFlow.emit(SignUpUIEvent.NavigateToNext)
+                        uiState.value = SignUpUIState.Idle
+                    }
+                    is Resource.Error -> {
+                        _eventFlow.emit(SignUpUIEvent.ShowToast(it.message ?: "알 수 없는 오류가 발생했어요."))
+                        uiState.value = SignUpUIState.Error(it.message)
+                    }
+                    is Resource.Loading -> {
+                        uiState.value = SignUpUIState.Loading
                     }
                 }
             }
@@ -54,18 +77,18 @@ class SignUpViewModel @Inject constructor(
 
     fun setRole(role: String) {
         viewModelScope.launch {
-            loginRepository.setRole(role).collectLatest {
+            signUpRepository.setRole(role).collectLatest {
                 when(it) {
                     is Resource.Success -> {
                         _eventFlow.emit(SignUpUIEvent.NavigateToNext)
-                        uiState.value = SignUpUiState.Idle
+                        uiState.value = SignUpUIState.Idle
                     }
                     is Resource.Error -> {
                         _eventFlow.emit(SignUpUIEvent.ShowToast(it.message ?: "알 수 없는 오류가 발생했어요."))
-                        uiState.value = SignUpUiState.Error(it.message)
+                        uiState.value = SignUpUIState.Error(it.message)
                     }
                     is Resource.Loading -> {
-                        uiState.value = SignUpUiState.Loading
+                        uiState.value = SignUpUIState.Loading
                     }
                 }
             }
@@ -74,38 +97,38 @@ class SignUpViewModel @Inject constructor(
 
     fun searchUserByEmail(email: String) {
         viewModelScope.launch {
-            loginRepository.getUserByEmail(email).collectLatest {
+            signUpRepository.getUserByEmail(email).collectLatest {
                 when(it) {
                     is Resource.Success -> {
                         _userSearched.value = it.data
-                        uiState.value = SignUpUiState.Idle
+                        uiState.value = SignUpUIState.Idle
                     }
                     is Resource.Error -> {
                         _eventFlow.emit(SignUpUIEvent.ShowToast(it.message ?: "알 수 없는 오류가 발생했어요."))
-                        uiState.value = SignUpUiState.Error(it.message)
+                        uiState.value = SignUpUIState.Error(it.message)
                     }
                     is Resource.Loading -> {
-                        uiState.value = SignUpUiState.Loading
+                        uiState.value = SignUpUIState.Loading
                     }
                 }
             }
         }
     }
 
-    fun setRelationship(userId: Long, type: String) {
+    fun requestRelationship(userId: Long, type: String) {
         viewModelScope.launch {
-            loginRepository.setRelationship(userId, type).collectLatest {
+            signUpRepository.requestRelationship(userId, type).collectLatest {
                 when(it) {
                     is Resource.Success -> {
                         _eventFlow.emit(SignUpUIEvent.NavigateToNext)
-                        uiState.value = SignUpUiState.Idle
+                        uiState.value = SignUpUIState.Idle
                     }
                     is Resource.Error -> {
                         _eventFlow.emit(SignUpUIEvent.ShowToast(it.message ?: "알 수 없는 오류가 발생했어요."))
-                        uiState.value = SignUpUiState.Error(it.message)
+                        uiState.value = SignUpUIState.Error(it.message)
                     }
                     is Resource.Loading -> {
-                        uiState.value = SignUpUiState.Loading
+                        uiState.value = SignUpUIState.Loading
                     }
                 }
             }
@@ -114,13 +137,13 @@ class SignUpViewModel @Inject constructor(
 }
 
 @Stable
-sealed interface SignUpUiState {
+sealed interface SignUpUIState {
 
-    data object Idle : SignUpUiState
+    data object Idle : SignUpUIState
 
-    data object Loading : SignUpUiState
+    data object Loading : SignUpUIState
 
-    data class Error(val message: String?) : SignUpUiState
+    data class Error(val message: String?) : SignUpUIState
 }
 
 sealed interface SignUpUIEvent {

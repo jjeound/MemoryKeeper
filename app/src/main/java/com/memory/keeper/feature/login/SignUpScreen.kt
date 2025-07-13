@@ -45,12 +45,11 @@ import com.memory.keeper.ui.theme.MemoryTheme
 fun SignUpScreen(
     viewModel: SignUpViewModel = hiltViewModel(),
 ){
-    val scrollState = rememberScrollState()
     val context = LocalContext.current
     val composeNavigator = currentComposeNavigator
     val name by viewModel.name.collectAsStateWithLifecycle()
     Column(
-        modifier = Modifier.fillMaxSize().widthIn(max = 600.dp).windowInsetsPadding(WindowInsets.systemBars).verticalScroll(scrollState),
+        modifier = Modifier.fillMaxSize().widthIn(max = 600.dp).windowInsetsPadding(WindowInsets.systemBars),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -72,9 +71,10 @@ fun SignUpScreen(
         )
         Image(
             modifier = Modifier.width(350.dp).height(90.dp).clickable {
-                kakaoLogin(context){ code ->
-                    viewModel.login(code)
-                }
+//                kakaoLogin(context){ code ->
+//                    viewModel.login(code)
+//                }
+                viewModel.testLogin("1")
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"

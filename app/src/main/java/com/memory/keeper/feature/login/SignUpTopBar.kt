@@ -15,12 +15,14 @@ import com.memory.keeper.ui.theme.MemoryTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpTopBar() {
-    //val composeNavigator = currentComposeNavigator
+fun SignUpTopBar(
+    title: String = "회원가입",
+) {
+    val composeNavigator = currentComposeNavigator
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = "회원가입",
+                text = title,
                 color = MemoryTheme.colors.textPrimary,
                 style = MemoryTheme.typography.appBarTitle
             )
@@ -31,7 +33,7 @@ fun SignUpTopBar() {
         navigationIcon = {
             IconButton(
                 onClick = {
-                    //composeNavigator.navigateUp()
+                    composeNavigator.navigateUp()
                 },
             ) {
                 Icon(

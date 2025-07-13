@@ -4,6 +4,7 @@ import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -51,6 +53,7 @@ import com.memory.keeper.ui.theme.MemoryTheme
 fun SignUpSearchUserScreen(
     viewModel: SignUpViewModel = hiltViewModel(),
     name: String,
+    title: String = "회원가입",
 ){
     var enabled by remember { mutableStateOf(false) }
     val composeNavigator = currentComposeNavigator
@@ -64,26 +67,33 @@ fun SignUpSearchUserScreen(
             WindowInsets.systemBars).background(MemoryTheme.colors.surface).imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SignUpTopBar()
-        if(uiState == SignUpUiState.Loading){
-            CircularProgressIndicator(
-                modifier = Modifier.weight(1f),
-                color = MemoryTheme.colors.primary,
-            )
+        SignUpTopBar(title)
+        if(uiState == SignUpUIState.Loading){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator(
+                    color = MemoryTheme.colors.primary
+                )
+            }
         }else{
             SearchUserContent(
                 modifier = Modifier.weight(1f),
                 email = email,
                 onChange = {
                     email = it
-                    enabled = it.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(it).matches()
+                    enabled = it.isNotEmpty()// && Patterns.EMAIL_ADDRESS.matcher(it).matches()
                 },
                 isError = isError
             )
             SignUpBottomButton(
                 enabled = enabled,
                 onClick = {
-                    viewModel.searchUserByEmail(email)
+                    //viewModel.searchUserByEmail(email)
+                    composeNavigator.navigate(
+                        Screen.SetRelation(name, "김성근", 1)
+                    )
                 },
                 title = "다음"
             )
@@ -121,15 +131,12 @@ fun SearchUserContent(
         modifier = modifier.widthIn(Dimens.maxPhoneWidth).padding(
             horizontal = Dimens.gapLarge),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.spacedBy(Dimens.gapHuge)
     ) {
         Text(
             text = "관계 설정하기",
             style = MemoryTheme.typography.headlineLarge,
             color = MemoryTheme.colors.textPrimary
-        )
-        Spacer(
-            modifier = Modifier.height(Dimens.gapHuge)
         )
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth().semantics{
@@ -154,8 +161,9 @@ fun SearchUserContent(
                         }
                     ){
                         Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.setting),
-                            contentDescription = "delete"
+                            imageVector = ImageVector.vectorResource(R.drawable.close),
+                            contentDescription = "delete",
+                            tint = Color.Unspecified
                         )
                     }
                 }
@@ -186,7 +194,7 @@ fun SearchUserContent(
 fun SignUpSearchScreenPreview() {
     MemoryTheme {
         SignUpSearchUserScreen(
-            name = "홍길동"
+            name = "홍길동",
         )
     }
 }
@@ -196,7 +204,7 @@ fun SignUpSearchScreenPreview() {
 fun SignUpSearchScreenTabletPreview() {
     MemoryTheme {
         SignUpSearchUserScreen(
-            name = "홍길동"
+            name = "홍길동",
         )
     }
 }

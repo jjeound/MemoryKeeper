@@ -45,7 +45,9 @@ fun SignUpRelationScreen(
     viewModel: SignUpViewModel = hiltViewModel(),
     name: String,
     userName: String,
-    userId: Long
+    userId: Long,
+    title: String = "회원가입",
+    fromMy: Boolean = false
 ){
     var enabled by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
@@ -58,12 +60,16 @@ fun SignUpRelationScreen(
             WindowInsets.systemBars).background(MemoryTheme.colors.surface),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SignUpTopBar()
-        if(uiState == SignUpUiState.Loading){
-            CircularProgressIndicator(
-                modifier = Modifier.weight(1f),
-                color = MemoryTheme.colors.primary,
-            )
+        SignUpTopBar(title)
+        if(uiState == SignUpUIState.Loading){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator(
+                    color = MemoryTheme.colors.primary
+                )
+            }
         }else{
             SignUpRelationContent(
                 modifier = Modifier.weight(1f),
@@ -78,7 +84,7 @@ fun SignUpRelationScreen(
             SignUpBottomButton(
                 enabled = enabled,
                 onClick = {
-                    viewModel.setRelationship(userId, type[selectedIndex])
+                    viewModel.requestRelationship(userId, type[selectedIndex])
                 },
                 title = "다음"
             )
@@ -88,9 +94,13 @@ fun SignUpRelationScreen(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 is SignUpUIEvent.NavigateToNext -> {
-                    composeNavigator.navigate(
-                        Screen.SignUpFinish(name)
-                    )
+                    if(!fromMy){
+                        composeNavigator.navigate(
+                            Screen.SignUpFinish(name)
+                        )
+                    }else{
+                        Toast.makeText(context, "요청이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 is SignUpUIEvent.ShowToast -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
@@ -113,15 +123,12 @@ fun SignUpRelationContent(
         modifier = modifier.widthIn(Dimens.maxPhoneWidth).padding(
             horizontal = Dimens.gapLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(Dimens.gapHuge)
     ) {
         Text(
             text = "${name}님과 ${userName}님의\n관계를 선택해주세요",
             style = MemoryTheme.typography.headlineLarge,
             color = MemoryTheme.colors.textPrimary
-        )
-        Spacer(
-            modifier = Modifier.height(Dimens.gapHuge)
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(Dimens.gapLarge)

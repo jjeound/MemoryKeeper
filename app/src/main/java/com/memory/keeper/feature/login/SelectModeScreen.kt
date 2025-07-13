@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +52,7 @@ fun SelectModeScreen(
 ){
     var enabled by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
-    val mode = listOf("PROTECTOR", "KEEPER")
+    val mode = listOf("PROTECTOR", "PATIENT")
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val composeNavigator = currentComposeNavigator
     val context = LocalContext.current
@@ -61,11 +62,15 @@ fun SelectModeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SignUpTopBar()
-        if(uiState == SignUpUiState.Loading){
-            CircularProgressIndicator(
-                modifier = Modifier.weight(1f),
-                color = MemoryTheme.colors.primary,
-            )
+        if(uiState == SignUpUIState.Loading){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ){
+                CircularProgressIndicator(
+                    color = MemoryTheme.colors.primary
+                )
+            }
         }else{
             SelectModeContent(
                 modifier = Modifier.weight(1f),
@@ -118,15 +123,12 @@ fun SelectModeContent(
         modifier = modifier.widthIn(Dimens.maxPhoneWidth).padding(
             horizontal = Dimens.gapLarge),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.spacedBy(Dimens.gapHuge)
     ) {
         Text(
             text = "보호자 / 사용자 모드 중 하나를 선택해주세요",
             style = MemoryTheme.typography.headlineLarge,
             color = MemoryTheme.colors.textPrimary
-        )
-        Spacer(
-            modifier = Modifier.height(Dimens.gapHuge)
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(Dimens.gapMedium)
