@@ -1,5 +1,6 @@
 package com.memory.keeper.data.util
 
+import android.util.Log
 import com.kakao.sdk.common.Constants.AUTHORIZATION
 import com.memory.keeper.data.repository.TokenRepository
 import kotlinx.coroutines.runBlocking
@@ -22,6 +23,7 @@ class AuthInterceptor @Inject constructor(
         if (token.isNullOrEmpty()) {
             return errorResponse(chain.request())
         }
+        Log.d("token", token)
 
         val request = chain.request().newBuilder().header(AUTHORIZATION, token).build()
 
