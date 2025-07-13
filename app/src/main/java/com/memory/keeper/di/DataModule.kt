@@ -1,5 +1,9 @@
 package com.memory.keeper.di
 
+import com.memory.keeper.data.repository.AIRepository
+import com.memory.keeper.data.repository.AIRepositoryImpl
+import com.memory.keeper.data.repository.LoginRepository
+import com.memory.keeper.data.repository.LoginRepositoryImpl
 import com.memory.keeper.data.repository.SignUpRepository
 import com.memory.keeper.data.repository.SignUpRepositoryImpl
 import com.memory.keeper.data.repository.TokenRepository
@@ -19,8 +23,14 @@ internal interface DataModule {
     fun bindsTokenRepository(impl: TokenRepositoryImpl):TokenRepository
 
     @Binds
-    fun bindsLoginRepository(impl: SignUpRepositoryImpl): SignUpRepository
+    fun bindsLoginRepository(impl: LoginRepositoryImpl): LoginRepository
+
+    @Binds
+    fun bindsSignUpRepository(impl: SignUpRepositoryImpl): SignUpRepository
 
     @Binds
     fun bindsUserRepository(impl: UserRepositoryImpl): UserRepository
+
+    @Binds
+    fun bindsAIRepository(impl: AIRepositoryImpl): AIRepository
 }

@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder
 import com.memory.keeper.core.Constants.BASE_URL
 import com.memory.keeper.data.repository.TokenRepository
 import com.memory.keeper.data.service.AIService
+import com.memory.keeper.data.service.LoginService
 import com.memory.keeper.data.service.SignUpService
 import com.memory.keeper.data.service.TokenService
 import com.memory.keeper.data.service.UserService
@@ -16,6 +17,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -37,11 +39,16 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(tokenRepository: TokenRepository): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(tokenRepository))
+            .connectTimeout(60, TimeUnit.SECONDS)   // 연결 타임아웃
+            .readTimeout(60, TimeUnit.SECONDS)      // 응답 타임아웃
+            .writeTimeout(60, TimeUnit.SECONDS)     // 요청 타임아웃
             .authenticator(AuthAuthenticator(tokenRepository))
-            .connectTimeout(30, TimeUnit.SECONDS)   // 연결 타임아웃
-            .readTimeout(30, TimeUnit.SECONDS)      // 응답 타임아웃
-            .writeTimeout(30, TimeUnit.SECONDS)     // 요청 타임아웃
+            .addInterceptor(AuthInterceptor(tokenRepository))
+            .addNetworkInterceptor(
+                HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.BASIC
+                }
+            )
             .build()
     }
 
@@ -53,9 +60,27 @@ object NetworkModule {
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient) // OkHttpClient 주입
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLoginService(gson: Gson): LoginService {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(OkHttpClient.Builder()
+                .addNetworkInterceptor(
+                    HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BASIC
+                    }
+                )
+                .build()
+            )
+            .build()
+            .create(LoginService::class.java)
     }
 
     @Provides
@@ -66,19 +91,23 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideLoginService(retrofit: Retrofit): SignUpService {
+    fun provideSignUpService(retrofit: Retrofit): SignUpService {
         return retrofit.create(SignUpService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideTokenService(retrofit: Retrofit): TokenService{
-        return retrofit.create(TokenService::class.java)
     }
 
     @Provides
     @Singleton
     fun provideUserService(retrofit: Retrofit): UserService{
         return retrofit.create(UserService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTokenService(gson: Gson): TokenService {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+            .create(TokenService::class.java)
     }
 }
