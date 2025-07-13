@@ -1,23 +1,17 @@
 package com.memory.keeper.data.service
 
-import com.memory.keeper.data.dto.request.AccessTokenRequest
 import com.memory.keeper.data.dto.request.RelationshipRequest
 import com.memory.keeper.data.dto.request.RoleRequest
 import com.memory.keeper.data.dto.response.ApiResponse
-import com.memory.keeper.data.dto.response.LoginResponse
 import com.memory.keeper.data.dto.response.UserInfo
 import com.memory.keeper.data.dto.response.UserSearched
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface SignUpService {
-    @POST("/api/user/kakao-login")
-    suspend fun kakaoLogin(
-        @Body accessToken: AccessTokenRequest
-    ): ApiResponse<LoginResponse>
 
     @POST("/api/users/logout")
     suspend fun logout(): ApiResponse<String>
@@ -27,18 +21,16 @@ interface SignUpService {
         @Body roleReq: RoleRequest
     ): ApiResponse<String>
 
-    @GET("/api/relationships/search/{email}")
+    @GET("/api/relationships/search")
     suspend fun getUserByEmail(
-        @Path("email") email: String
+        @Query("email") email: String
     ): ApiResponse<UserSearched>
 
-    @GET("/api/users/basic-info/{user-id}")
-    suspend fun getUserById(
-        @Path("user-id") userId: Long
-    ): ApiResponse<UserInfo>
+    @GET("/api/users/basic-info")
+    suspend fun getMyInfo(): ApiResponse<UserInfo>
 
     @POST("/api/relationships/request")
-    suspend fun setRelationship(
+    suspend fun requestRelationship(
         @Body relationshipRequest: RelationshipRequest
     ): ApiResponse<String>
 }

@@ -8,5 +8,5 @@ data class AIChatResponse(
     val message: String,
     val evaluation: String,//평가LLM의 평가 결과
     val topic: String,
-    @SerializedName("_ok") val ok: Boolean,
+    @SerializedName("is_ok") val ok: Boolean,
 )
