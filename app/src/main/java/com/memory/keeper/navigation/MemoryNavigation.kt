@@ -13,9 +13,9 @@ import com.memory.keeper.feature.login.SignUpSearchUserScreen
 import com.memory.keeper.feature.my.MyScreen
 import com.memory.keeper.feature.notification.NotificationScreen
 import com.memory.keeper.feature.prompt.PromptScreen
-import com.memory.keeper.feature.record.RecordScreen
 
-fun NavGraphBuilder.memoryNavigation() {
+fun NavGraphBuilder.memoryNavigation(
+) {
     navigation<Graph.SignUpGraph>(
         startDestination = Screen.SignUp
     ){
@@ -57,13 +57,6 @@ fun NavGraphBuilder.memoryNavigation() {
     ){
         composable<Screen.Home> {
             HomeScreen()
-        }
-    }
-    navigation<Graph.RecordGraph>(
-        startDestination = Screen.Record
-    ){
-        composable<Screen.Record> {
-            RecordScreen()
         }
     }
     navigation<Graph.MyGraph>(

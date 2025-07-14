@@ -6,8 +6,6 @@ sealed interface Screen{
     @Serializable
     data object Home: Screen
     @Serializable
-    data object Record: Screen
-    @Serializable
     data object My: Screen
     @Serializable
     data object SignUp: Screen
@@ -28,8 +26,6 @@ sealed interface Screen{
 sealed interface Graph {
     @Serializable
     data object HomeGraph : Graph
-    @Serializable
-    data object RecordGraph : Graph
     @Serializable
     data object MyGraph : Graph
     @Serializable
