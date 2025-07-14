@@ -102,12 +102,12 @@ fun MainScreen(composeNavigator: AppComposeNavigator<Screen>) {
                 layoutType = customNavSuiteType,
             ) {
                 MemoryNavHost(
-                    navHostController = navHostController
+                    navHostController = navHostController,
                 )
             }
         } else {
             MemoryNavHost(
-                navHostController = navHostController
+                navHostController = navHostController,
             )
         }
     }

@@ -6,11 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
@@ -83,7 +81,7 @@ fun SignUpSearchUserScreen(
                 email = email,
                 onChange = {
                     email = it
-                    enabled = it.isNotEmpty()// && Patterns.EMAIL_ADDRESS.matcher(it).matches()
+                    enabled = it.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(it).matches()
                 },
                 isError = isError
             )
@@ -110,7 +108,6 @@ fun SignUpSearchUserScreen(
                     }
                 }
                 is SignUpUIEvent.ShowToast -> {
-                    // Handle error
                     isError = true
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }

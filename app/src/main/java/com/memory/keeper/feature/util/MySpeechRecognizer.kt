@@ -12,7 +12,7 @@ import java.util.Locale
 
 
 class MySpeechRecognizer(
-    private val context: Context,
+    context: Context,
     private val onResult: (String) -> Unit,
     private val onError: (String) -> Unit,
     private val onFinished: () -> Unit,

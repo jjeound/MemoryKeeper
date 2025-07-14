@@ -6,7 +6,7 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import java.util.Locale
 
-class TTSManager(private val context: Context) : TextToSpeech.OnInitListener {
+class TTSManager(context: Context) : TextToSpeech.OnInitListener {
 
     private var tts: TextToSpeech? = null
     private var isReady = false
@@ -36,10 +36,6 @@ class TTSManager(private val context: Context) : TextToSpeech.OnInitListener {
             override fun onError(utteranceId: String?) {}
             override fun onStart(utteranceId: String?) {}
         })
-    }
-
-    fun isSpeaking(): Boolean {
-        return tts?.isSpeaking == true
     }
 
     fun shutdown() {

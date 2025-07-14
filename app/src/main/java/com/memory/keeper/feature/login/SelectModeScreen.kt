@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
@@ -52,7 +50,7 @@ fun SelectModeScreen(
 ){
     var enabled by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
-    val mode = listOf("PROTECTOR", "PATIENT")
+    val mode = listOf("PROTECTOR", "PATIENT", "HEALER")
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val composeNavigator = currentComposeNavigator
     val context = LocalContext.current
@@ -126,7 +124,7 @@ fun SelectModeContent(
         verticalArrangement = Arrangement.spacedBy(Dimens.gapHuge)
     ) {
         Text(
-            text = "보호자 / 사용자 모드 중 하나를 선택해주세요",
+            text = "보호자 / 사용자 / 치료사 모드 중 하나를 선택해주세요",
             style = MemoryTheme.typography.headlineLarge,
             color = MemoryTheme.colors.textPrimary
         )
@@ -202,9 +200,47 @@ fun SelectModeContent(
                     }
                     Image(
                         imageVector = ImageVector.vectorResource(R.drawable.keeper),
-                        contentDescription = "parent icon",
+                        contentDescription = "keeper icon",
                         colorFilter = ColorFilter.tint(
                             if(selectedIndex == 1) MemoryTheme.colors.primary else MemoryTheme.colors.optionBorderUnfocused
+                        )
+                    )
+                }
+            }
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = if(selectedIndex == 2) MemoryTheme.colors.optionFocused else MemoryTheme.colors.optionUnfocused,
+                ),
+                shape = RoundedCornerShape(Dimens.cornerRadius),
+                border = BorderStroke(width = 1.dp, color = if(selectedIndex == 2) MemoryTheme.colors.optionBorderFocused else MemoryTheme.colors.optionBorderUnfocused),
+                onClick = {
+                    onClick(2)
+                }
+            ) {
+                Row(
+                    modifier = Modifier.padding(Dimens.gapMedium),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(Dimens.gapLarge).weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.gapMedium)
+                    ) {
+                        Text(
+                            text = "치료사",
+                            style = MemoryTheme.typography.headlineLarge,
+                            color = if(selectedIndex == 2) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary
+                        )
+                        Text(
+                            text = "치료사 사용을 위해서는 치료사 자격 인증을 필요로 합니다",
+                            style = MemoryTheme.typography.body,
+                            color = if(selectedIndex == 2) MemoryTheme.colors.primary else MemoryTheme.colors.textPrimary,
+                            softWrap = true
+                        )
+                    }
+                    Image(
+                        imageVector = ImageVector.vectorResource(R.drawable.parent),
+                        contentDescription = "healer icon",
+                        colorFilter = ColorFilter.tint(
+                            if(selectedIndex == 2) MemoryTheme.colors.primary else MemoryTheme.colors.optionBorderUnfocused
                         )
                     )
                 }

@@ -1,6 +1,9 @@
 package com.memory.keeper.feature.login
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memory.keeper.core.Resource
@@ -32,6 +35,19 @@ class SignUpViewModel @Inject constructor(
 
     private val _userSearched = MutableStateFlow<UserSearched?>(null)
     val userSearched = _userSearched.asStateFlow()
+
+    private val _hasSignedUp  = MutableStateFlow(false)
+    val hasSignedUp = _hasSignedUp.asStateFlow()
+
+    init {
+        getHasSignedUp()
+    }
+
+    fun getHasSignedUp() {
+        viewModelScope.launch {
+            _hasSignedUp.value = signUpRepository.getHasSignedUp() ?: false
+        }
+    }
 
     fun login(accessToken: String){
         viewModelScope.launch {

@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -85,6 +83,9 @@ fun SignUpRelationScreen(
                 enabled = enabled,
                 onClick = {
                     viewModel.requestRelationship(userId, type[selectedIndex])
+//                    composeNavigator.navigate(
+//                        Screen.SignUpFinish("박유진")
+//                    )
                 },
                 title = "다음"
             )
@@ -122,64 +123,69 @@ fun SignUpRelationContent(
     Column(
         modifier = modifier.widthIn(Dimens.maxPhoneWidth).padding(
             horizontal = Dimens.gapLarge),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Dimens.gapHuge)
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = "${name}님과 ${userName}님의\n관계를 선택해주세요",
             style = MemoryTheme.typography.headlineLarge,
             color = MemoryTheme.colors.textPrimary
         )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
-        ){
-            for(i in 0..2){
-                Card (
-                    modifier = Modifier.padding(vertical = Dimens.gapMedium).size(100.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if(selectedIndex == i) MemoryTheme.colors.primary else MemoryTheme.colors.optionUnfocused,
-                        contentColor = if(selectedIndex == i) MemoryTheme.colors.optionTextFocused else MemoryTheme.colors.optionTextUnfocused
-                    ),
-                    shape = CircleShape,
-                    onClick = {
-                        onClick(i)
-                    }
-                ) {
-                    Box(
-                        modifier = modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        Text(
-                            text = relationship[i],
-                            style = MemoryTheme.typography.option,
-                        )
+        Column(
+            modifier = modifier.widthIn(Dimens.maxPhoneWidth),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
+            ){
+                for(i in 0..2){
+                    Card (
+                        modifier = Modifier.padding(vertical = Dimens.gapMedium).size(100.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if(selectedIndex == i) MemoryTheme.colors.primary else MemoryTheme.colors.optionUnfocused,
+                            contentColor = if(selectedIndex == i) MemoryTheme.colors.optionTextFocused else MemoryTheme.colors.optionTextUnfocused
+                        ),
+                        shape = CircleShape,
+                        onClick = {
+                            onClick(i)
+                        }
+                    ) {
+                        Box(
+                            modifier = modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ){
+                            Text(
+                                text = relationship[i],
+                                style = MemoryTheme.typography.option,
+                            )
+                        }
                     }
                 }
             }
-        }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
-        ) {
-            for(i in 3..5){
-                Card (
-                    modifier = Modifier.padding(vertical = Dimens.gapMedium).size(100.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if(selectedIndex == i) MemoryTheme.colors.primary else MemoryTheme.colors.optionUnfocused,
-                        contentColor = if(selectedIndex == i) MemoryTheme.colors.optionTextFocused else MemoryTheme.colors.optionTextUnfocused
-                    ),
-                    shape = CircleShape,
-                    onClick = {
-                        onClick(i)
-                    }
-                ) {
-                    Box(
-                        modifier = modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        Text(
-                            text = relationship[i],
-                            style = MemoryTheme.typography.option,
-                        )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
+            ) {
+                for(i in 3..5){
+                    Card (
+                        modifier = Modifier.padding(vertical = Dimens.gapMedium).size(100.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if(selectedIndex == i) MemoryTheme.colors.primary else MemoryTheme.colors.optionUnfocused,
+                            contentColor = if(selectedIndex == i) MemoryTheme.colors.optionTextFocused else MemoryTheme.colors.optionTextUnfocused
+                        ),
+                        shape = CircleShape,
+                        onClick = {
+                            onClick(i)
+                        }
+                    ) {
+                        Box(
+                            modifier = modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ){
+                            Text(
+                                text = relationship[i],
+                                style = MemoryTheme.typography.option,
+                            )
+                        }
                     }
                 }
             }

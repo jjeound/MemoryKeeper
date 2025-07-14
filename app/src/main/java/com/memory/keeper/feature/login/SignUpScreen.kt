@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +46,7 @@ fun SignUpScreen(
     val context = LocalContext.current
     val composeNavigator = currentComposeNavigator
     val name by viewModel.name.collectAsStateWithLifecycle()
+    val hasSignedUp by viewModel.hasSignedUp.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier.fillMaxSize().widthIn(max = 600.dp).windowInsetsPadding(WindowInsets.systemBars),
         verticalArrangement = Arrangement.Center,
@@ -71,10 +70,10 @@ fun SignUpScreen(
         )
         Image(
             modifier = Modifier.width(350.dp).height(90.dp).clickable {
-//                kakaoLogin(context){ code ->
-//                    viewModel.login(code)
-//                }
-                viewModel.testLogin("1")
+                kakaoLogin(context){ code ->
+                    viewModel.login(code)
+                }
+                //viewModel.testLogin("1")
             },
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"
@@ -85,7 +84,15 @@ fun SignUpScreen(
             when(event){
                 is SignUpUIEvent.NavigateToNext -> {
                     name?.let {
-                        composeNavigator.navigate(Screen.SelectMode(it))
+                        if(hasSignedUp){
+                            composeNavigator.navigate(Screen.Home){
+                                popUpTo(0) { inclusive = true } // 모든 백스택 제거
+                                launchSingleTop = true
+                            }
+                        }else{
+                            composeNavigator.navigate(Screen.SelectMode(it))
+                        }
+                        //composeNavigator.navigate(Screen.SelectMode(it))
                     }
                 }
                 is SignUpUIEvent.ShowToast -> {

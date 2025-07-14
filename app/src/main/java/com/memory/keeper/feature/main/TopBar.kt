@@ -36,6 +36,7 @@ fun TopBar(
     isPatient: Boolean,
     isHome: Boolean = false,
     userName: String? = "보호자",
+    patientName: String? = null,
     selectedIndex: Int,
     onClick: (Int) -> Unit
 ) {
@@ -121,6 +122,12 @@ fun TopBar(
                 if(isHome && isPatient){
                     Text(
                         text = "대화하기",
+                        style = MemoryTheme.typography.button,
+                        color = MemoryTheme.colors.textOnPrimary,
+                    )
+                } else if(isHome && patientName != null) {
+                    Text(
+                        text = patientName,
                         style = MemoryTheme.typography.button,
                         color = MemoryTheme.colors.textOnPrimary,
                     )
