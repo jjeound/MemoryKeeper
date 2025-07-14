@@ -39,9 +39,9 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(tokenRepository: TokenRepository): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(60, TimeUnit.SECONDS)   // 연결 타임아웃
-            .readTimeout(60, TimeUnit.SECONDS)      // 응답 타임아웃
-            .writeTimeout(60, TimeUnit.SECONDS)     // 요청 타임아웃
+            .connectTimeout(120, TimeUnit.SECONDS)   // 연결 타임아웃
+            .readTimeout(120, TimeUnit.SECONDS)      // 응답 타임아웃
+            .writeTimeout(120, TimeUnit.SECONDS)     // 요청 타임아웃
             .authenticator(AuthAuthenticator(tokenRepository))
             .addInterceptor(AuthInterceptor(tokenRepository))
             .addNetworkInterceptor(
