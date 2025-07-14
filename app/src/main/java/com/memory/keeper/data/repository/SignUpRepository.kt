@@ -18,4 +18,5 @@ interface SignUpRepository {
     @WorkerThread
     fun requestRelationship(userId: Long, type: String): Flow<Resource<String>>
     suspend fun getUserName(): String?
+    suspend fun getHasSignedUp(): Boolean?
 }

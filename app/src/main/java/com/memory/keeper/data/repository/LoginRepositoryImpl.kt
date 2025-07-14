@@ -3,6 +3,7 @@ package com.memory.keeper.data.repository
 import android.content.Context
 import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
+import com.memory.keeper.core.PrefKeys.USER_ID
 import com.memory.keeper.core.PrefKeys.USER_NAME
 import com.memory.keeper.core.Resource
 import com.memory.keeper.data.AppDispatchers
@@ -38,6 +39,7 @@ class LoginRepositoryImpl @Inject constructor(
                 tokenRepository.saveAccessToken(response.result!!.accessToken)
                 tokenRepository.saveRefreshToken(response.result.refreshToken)
                 saveUserName(response.result.name)
+                saveUserId(response.result.id)
                 emit(Resource.Success(response.result))
             } else {
                 emit(Resource.Error(response.message))
@@ -63,6 +65,7 @@ class LoginRepositoryImpl @Inject constructor(
             tokenRepository.saveAccessToken(response.result!!.accessToken)
             tokenRepository.saveRefreshToken(response.result.refreshToken)
             saveUserName(response.result.name)
+            saveUserId(response.result.id)
             if (response.isSuccess){
                 emit(Resource.Success(response.result))
             } else {
@@ -85,6 +88,12 @@ class LoginRepositoryImpl @Inject constructor(
     private suspend fun saveUserName(name: String) {
         dataStore.edit { prefs ->
             prefs[USER_NAME] = name
+        }
+    }
+
+    private suspend fun saveUserId(id: Long) {
+        dataStore.edit { prefs ->
+            prefs[USER_ID] = id
         }
     }
 }

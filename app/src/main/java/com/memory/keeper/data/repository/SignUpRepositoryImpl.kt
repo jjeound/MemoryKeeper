@@ -1,8 +1,10 @@
 package com.memory.keeper.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
+import com.memory.keeper.core.PrefKeys.HAS_SIGNED_UP
 import com.memory.keeper.core.PrefKeys.ROLE
 import com.memory.keeper.core.PrefKeys.USER_NAME
 import com.memory.keeper.core.Resource
@@ -65,6 +67,7 @@ class SignUpRepositoryImpl @Inject constructor(
             val response = signUpService.setRole(RoleRequest(role = role))
             if (response.isSuccess){
                 saveRole(role)
+                setHasSignedUp()
                 emit(Resource.Success(response.result))
             } else {
                 emit(Resource.Error(response.message))
@@ -166,5 +169,17 @@ class SignUpRepositoryImpl @Inject constructor(
         dataStore.edit { prefs ->
             prefs[ROLE] = role
         }
+    }
+
+    private suspend fun setHasSignedUp() {
+        dataStore.edit { prefs ->
+            prefs[HAS_SIGNED_UP] = true
+        }
+    }
+
+    override suspend fun getHasSignedUp(): Boolean? {
+        return dataStore.data.map { prefs ->
+            prefs[HAS_SIGNED_UP]
+        }.first()
     }
 }

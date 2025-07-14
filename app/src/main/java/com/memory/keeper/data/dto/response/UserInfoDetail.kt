@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserInfoDetail(
+    val userInfoId: Long,
     val age: Int? = null,
     val cognitiveStatus: String? = null,
     val education: String? = null,
