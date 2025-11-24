@@ -12,5 +12,6 @@ enum class BottomNavItems(
 ) {
     PROMPT(R.string.prompt, R.drawable.prompt, R.string.prompt, Screen.Prompt),
     HOME(R.string.home, R.drawable.home, R.string.home, Screen.Home),
+    CHAT(R.string.chat, R.drawable.chat, R.string.chat, Screen.Chat),
     MY(R.string.my, R.drawable.my, R.string.my, Screen.My),
 }

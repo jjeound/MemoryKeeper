@@ -2,13 +2,21 @@ package com.memory.keeper.feature.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.memory.keeper.R
 import com.memory.keeper.core.Dimens
+import com.memory.keeper.feature.util.PreviewTheme
 import com.memory.keeper.navigation.Screen
 import com.memory.keeper.navigation.currentComposeNavigator
 import com.memory.keeper.ui.theme.MemoryTheme
@@ -36,9 +45,10 @@ fun TopBar(
     isPatient: Boolean,
     isHome: Boolean = false,
     userName: String? = "보호자",
-    patientName: String? = null,
-    selectedIndex: Int,
-    onClick: (Int) -> Unit
+    patients: List<String>? = null,
+    onClick: (Int) -> Unit,
+    isExpanded: Boolean = false,
+    onDismiss: () -> Unit = {},
 ) {
     val composeNavigator = currentComposeNavigator
     Column {
@@ -89,48 +99,68 @@ fun TopBar(
                 modifier = Modifier
                     .weight(1f)
                     .height(50.dp).background(
-                        color = if(selectedIndex == 0) MemoryTheme.colors.box else MemoryTheme.colors.primary,
+                        color = MemoryTheme.colors.onPrimary,
                         shape = RoundedCornerShape(
                             topEnd = Dimens.cornerRadius
                         )
-                    ).clickable{
-                        onClick(0)
-                    },
+                    ),
                 contentAlignment = Alignment.Center,
             ){
                 Text(
-                    text = "${userName ?: "보호자"}님",
+                    text = "${userName ?: "사용자"}님",
                     style = MemoryTheme.typography.button,
                     color = MemoryTheme.colors.textOnPrimary,
                 )
             }
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(50.dp).background(
-                        color = if(selectedIndex == 1) MemoryTheme.colors.box else MemoryTheme.colors.primary,
-                        shape = RoundedCornerShape(
-                            topStart = Dimens.cornerRadius
-                        )
-                    ).clickable{
-                        if(isPatient){
-                            onClick(1)
-                        }
-                    },
+                modifier = Modifier.weight(1f).height(50.dp),
                 contentAlignment = Alignment.Center,
-            ){
-                if(isHome && isPatient){
-                    Text(
-                        text = "대화하기",
-                        style = MemoryTheme.typography.button,
-                        color = MemoryTheme.colors.textOnPrimary,
-                    )
-                } else if(isHome && patientName != null) {
-                    Text(
-                        text = patientName,
-                        style = MemoryTheme.typography.button,
-                        color = MemoryTheme.colors.textOnPrimary,
-                    )
+            ) {
+                if(isHome && patients != null) {
+                    Row(
+                        modifier = Modifier.padding(start = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = patients.getOrNull(0) ?: "",
+                            style = MemoryTheme.typography.button,
+                            color = MemoryTheme.colors.textOnPrimary,
+                        )
+                        Spacer(
+                            modifier = Modifier.width(8.dp)
+                        )
+//                        Icon(
+//                            imageVector = ImageVector.vectorResource(R.drawable.dropdown),
+//                            contentDescription = "select patient",
+//                        )
+                    }
+                }
+                patients?.let{
+                    DropdownMenu(
+                        expanded = isExpanded,
+                        onDismissRequest = onDismiss,
+                        containerColor = MemoryTheme.colors.primary,
+                        shadowElevation = 0.dp,
+                        tonalElevation = 0.dp,
+                        shape = RoundedCornerShape(Dimens.cornerRadius),
+                    ){
+                        it.forEachIndexed { index, patient ->
+                            DropdownMenuItem(
+                                modifier = Modifier.height(50.dp),
+                                text = {
+                                    Text(
+                                        text = patient,
+                                        style = MemoryTheme.typography.button,
+                                        color = MemoryTheme.colors.textOnPrimary,
+                                    )
+                                },
+                                onClick = {
+                                    onClick(index)
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -140,7 +170,13 @@ fun TopBar(
 @Preview(showBackground = true)
 @Composable
 fun TopBarPreview() {
-    MemoryTheme {
-        TopBar(isPatient = false, isHome = true, userName = "박성근", selectedIndex = 0, onClick = {})
+    PreviewTheme {
+        TopBar(
+            isPatient = false,
+            isHome = true,
+            userName = "박성근",
+            patients = listOf("박정수"),
+            onClick = {},
+        )
     }
 }

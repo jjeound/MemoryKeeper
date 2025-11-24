@@ -92,13 +92,13 @@ fun MainScreen(composeNavigator: AppComposeNavigator<Screen>) {
                     }
                 },
                 navigationSuiteColors = NavigationSuiteDefaults.colors(
-                    navigationBarContainerColor = MemoryTheme.colors.box,
+                    navigationBarContainerColor = MemoryTheme.colors.onPrimary,
                     navigationBarContentColor = MemoryTheme.colors.textPrimary,
-                    navigationRailContainerColor = MemoryTheme.colors.box,
+                    navigationRailContainerColor = MemoryTheme.colors.onPrimary,
                     navigationRailContentColor = MemoryTheme.colors.textPrimary,
                 ),
-                containerColor = MemoryTheme.colors.surface,
-                contentColor = MemoryTheme.colors.surface,
+                containerColor = MemoryTheme.colors.background,
+                contentColor = MemoryTheme.colors.background,
                 layoutType = customNavSuiteType,
             ) {
                 MemoryNavHost(
