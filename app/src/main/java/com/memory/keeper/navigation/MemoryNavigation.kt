@@ -4,6 +4,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.memory.keeper.feature.chat.AIChatScreen
+import com.memory.keeper.feature.chat.ChatScreen
+import com.memory.keeper.feature.chat.VideoScreen
 import com.memory.keeper.feature.home.HomeScreen
 import com.memory.keeper.feature.login.SelectModeScreen
 import com.memory.keeper.feature.login.SignUpFinishScreen
@@ -57,6 +60,19 @@ fun NavGraphBuilder.memoryNavigation(
     ){
         composable<Screen.Home> {
             HomeScreen()
+        }
+    }
+    navigation<Graph.ChatGraph>(
+        startDestination = Screen.Chat
+    ){
+        composable<Screen.Chat> {
+            ChatScreen()
+        }
+        composable<Screen.AIChatScreen> {
+            AIChatScreen()
+        }
+        composable<Screen.VideoScreen> {
+            VideoScreen()
         }
     }
     navigation<Graph.MyGraph>(

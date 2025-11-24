@@ -21,6 +21,12 @@ sealed interface Screen{
     data object Prompt: Screen
     @Serializable
     data object Notification: Screen
+    @Serializable
+    data object Chat: Screen
+    @Serializable
+    data object VideoScreen: Screen
+    @Serializable
+    data object AIChatScreen: Screen
 }
 
 sealed interface Graph {
@@ -32,4 +38,6 @@ sealed interface Graph {
     data object SignUpGraph : Graph
     @Serializable
     data object PromptGraph : Graph
+    @Serializable
+    data object ChatGraph : Graph
 }
