@@ -73,13 +73,6 @@ interface UserService {
         @Path("userInfoId") userInfoId: Long
     ): ApiResponse<List<UserInfoPhoto>>
 
-    @POST("/api/record/save")
-    suspend fun saveDailyRecord(
-        @Part("daily") daily: RequestBody,
-        @Part dailyImages: List<MultipartBody.Part>?,
-        @Part dailyVideos: List<MultipartBody.Part>?,
-    )
-
     @GET("/api/record/get/monthly")
     suspend fun getMonthlyRecord(
         @Query("date") date: String,
@@ -93,6 +86,13 @@ interface UserService {
 
     @POST("/api/conversation/save")
     suspend fun saveConversation(
+        @Query("date") date: String,
+    ): ApiResponse<String>
+
+    @POST("/api/record/save")
+    suspend fun saveFeedback(
+        @Query("feedback") feedback: String,
+        @Query("patientId") patientId: Long,
         @Query("date") date: String,
     ): ApiResponse<String>
 }
