@@ -31,6 +31,7 @@ android {
         val kakaoAppKey = localProperties.getProperty("KAKAO_APP_KEY") ?: ""
         buildConfigField("String", "KAKAO_APP_KEY", "\"${localProperties["KAKAO_APP_KEY"]}\"")
         buildConfigField("String", "KAKAO_REST_API_KEY", "\"${localProperties["KAKAO_REST_API_KEY"]}\"")
+        buildConfigField("String", "BASE_URL", "\"${localProperties["BASE_URL"]}\"")
         manifestPlaceholders["KAKAO_APP_KEY"] = kakaoAppKey
     }
 
