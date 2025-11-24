@@ -9,7 +9,9 @@ import com.memory.keeper.R
 @Immutable
 data class Colors(
     val surface: Color,
+    val background: Color,
     val primary: Color,
+    val onPrimary: Color,
     val textPrimary: Color,
     val textOnPrimary: Color,
     val textSecondary: Color,
@@ -35,19 +37,22 @@ data class Colors(
     val calendarBg: Color,
     val red: Color,
     val buttonSecondary: Color,
+    val prefix: Color,
 ) {
 
     companion object {
         @Composable
         fun defaultLightColors(): Colors = Colors(
             surface = colorResource(id = R.color.white_700),
+            background = colorResource(id = R.color.white_600),
             primary = colorResource(id = R.color.orange_600),
+            onPrimary = colorResource(id = R.color.black_800),
             textPrimary = colorResource(id = R.color.grey_900),
             textOnPrimary = colorResource(id = R.color.white_700),
-            textSecondary = colorResource(id = R.color.white_600),
+            textSecondary = colorResource(id = R.color.white_100),
             textThird = colorResource(id = R.color.black_900),
             optionBorderUnfocused = colorResource(id = R.color.grey_400),
-            optionTextUnfocused = colorResource(id = R.color.white_100),
+            optionTextUnfocused = colorResource(id = R.color.grey_800),
             optionUnfocused = colorResource(id = R.color.grey_100),
             optionFocused = colorResource(id = R.color.orange_300),
             buttonBorderUnfocused = colorResource(id = R.color.white_300),
@@ -62,11 +67,12 @@ data class Colors(
             iconSelected = colorResource(id = R.color.black_700),
             iconUnSelected = colorResource(id = R.color.grey_600),
             iconDefault = colorResource(id = R.color.grey_900),
-            box = colorResource(id = R.color.black_800),
+            box = colorResource(id = R.color.grey_200),
             buttonText = colorResource(id = R.color.white_700),
             calendarBg = colorResource(id = R.color.grey_200),
             red = colorResource(id = R.color.red),
-            buttonSecondary = colorResource(id = R.color.orange_300)
+            buttonSecondary = colorResource(id = R.color.orange_300),
+            prefix = colorResource(id = R.color.black_400)
         )
     }
 }

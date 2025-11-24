@@ -26,7 +26,7 @@ data class CustomTypography(
     val time: TextStyle,
     val pager: TextStyle,
     val badge: TextStyle,
-    val media: TextStyle,
+    val textField: TextStyle,
     val description: TextStyle,
     val menu: TextStyle,
     val boxText: TextStyle,
@@ -36,8 +36,8 @@ data class CustomTypography(
         fun defaultCustomTypography(fontFamily: FontFamily): CustomTypography = CustomTypography(
             appBarTitle = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp),
             option = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
-            headlineSmall = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp),
-            header = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 21.sp),
+            headlineSmall = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp),
+            header = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 24.sp),
             headlineLarge = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp, lineHeight = 30.sp),
             viewAll = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
             more = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Light, fontSize = 12.sp),
@@ -51,10 +51,10 @@ data class CustomTypography(
             time = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Light, fontSize = 10.sp),
             pager = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp),
             badge = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp),
-            media = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
+            textField = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
             description = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
             menu = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 16.sp),
-            boxText = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Normal, fontSize = 13.sp)
+            boxText = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
         )
     }
 }

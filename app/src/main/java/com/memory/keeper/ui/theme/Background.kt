@@ -19,7 +19,7 @@ data class Background(
         @Composable
         fun defaultBackground(): Background {
             return Background(
-                color = colorResource(id = R.color.white_700),
+                color = colorResource(id = R.color.white_600),
                 tonalElevation = 0.dp,
             )
         }
