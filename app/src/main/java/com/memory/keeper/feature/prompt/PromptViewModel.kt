@@ -1,6 +1,5 @@
 package com.memory.keeper.feature.prompt
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
@@ -119,13 +118,18 @@ class PromptViewModel @Inject constructor(
                 when (it) {
                     is Resource.Success -> {
                         _myInfo.value = it.data
-                        _userId.value?.let { id ->
-                            getUserInfoPhotos(id)
-                        }
+                        getUserInfoPhotos(_userId.value!!)
                     }
                     is Resource.Error -> {
-                        _eventFlow.emit(PromptUIEvent.ShowToast(it.message ?: "알 수 없는 오류가 발생했어요."))
-                        uiState.value = PromptUIState.Error(it.message)
+                        if (it.message == "USERINFO4004"){
+                            _userId.value?.let { id ->
+                                _myInfo.value = UserInfoDetail(userInfoId = id)
+                            }
+                            uiState.value = PromptUIState.Idle
+                        } else {
+                            _eventFlow.emit(PromptUIEvent.ShowToast(it.message ?: "알 수 없는 오류가 발생했어요."))
+                            uiState.value = PromptUIState.Error(it.message)
+                        }
                     }
                     is Resource.Loading -> {
                         uiState.value = PromptUIState.Loading
