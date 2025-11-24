@@ -4,12 +4,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DailyResponse(
-    val conversation: String,
+    val conversations: List<String>,
     val createdAt: String,
     val dailyDayRecording: String,
     val feedback: String? = null,
     val id: Long,
-    val imageUrls: List<String>,
+    val userId: Long,
+    val imageUrls: List<String>? = null,
     val updatedAt: String,
-    val videoUrls: List<String>
+    val videoUrl: String? = null
 )
