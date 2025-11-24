@@ -1,6 +1,7 @@
 package com.memory.keeper.feature.notification
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,7 +55,9 @@ fun NotificationScreen(
     val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize().widthIn(max = 600.dp)
-            .windowInsetsPadding(WindowInsets.systemBars),
+            .windowInsetsPadding(WindowInsets.systemBars).background(
+                color = MemoryTheme.colors.surface
+            ),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
