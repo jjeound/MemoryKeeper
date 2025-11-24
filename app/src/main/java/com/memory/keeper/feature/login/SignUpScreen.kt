@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -69,12 +71,20 @@ fun SignUpScreen(
             modifier = Modifier.height(Dimens.gapLarge)
         )
         Image(
-            modifier = Modifier.width(350.dp).height(90.dp).clickable {
-                kakaoLogin(context){ code ->
-                    viewModel.login(code)
-                }
-                //viewModel.testLogin("1")
-            },
+            modifier = Modifier.width(350.dp).height(90.dp).clickable(
+                onClick = {
+                    kakaoLogin(context){ code ->
+                        viewModel.login(code)
+                    }
+                    //viewModel.testLogin("1")
+//                    composeNavigator.navigate(Screen.Home){
+//                        popUpTo(0) { inclusive = true } // 모든 백스택 제거
+//                        launchSingleTop = true
+//                    }
+                },
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ),
             painter = painterResource(id = R.drawable.kakao_login_large_wide),
             contentDescription = "kakao_login"
         )
@@ -92,7 +102,7 @@ fun SignUpScreen(
                         }else{
                             composeNavigator.navigate(Screen.SelectMode(it))
                         }
-                        //composeNavigator.navigate(Screen.SelectMode(it))
+                        composeNavigator.navigate(Screen.SelectMode(it))
                     }
                 }
                 is SignUpUIEvent.ShowToast -> {
@@ -118,13 +128,11 @@ private fun kakaoLogin(context: Context, onResult: (String) -> Unit){
         UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
             if (error != null) {
                 Log.d("Login", "카카오톡으로 로그인 실패")
-
                 // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
                 // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
                 if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
                     return@loginWithKakaoTalk
                 }
-
                 // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
                 UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
             } else if (token != null) {

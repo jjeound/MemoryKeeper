@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import com.memory.keeper.R
 import com.memory.keeper.core.Dimens
+import com.memory.keeper.feature.util.PreviewTheme
 import com.memory.keeper.navigation.Screen
 import com.memory.keeper.navigation.currentComposeNavigator
 import com.memory.keeper.ui.theme.MemoryTheme
@@ -69,7 +70,7 @@ fun SignUpContent(
             verticalArrangement = Arrangement.spacedBy(Dimens.gapMedium)
         ) {
             Text(
-                text = "${name}님\n" +
+                text = "${name}\n" +
                         "회원가입을 축하드립니다!",
                 style = MemoryTheme.typography.headlineLarge,
                 color = MemoryTheme.colors.textPrimary
@@ -95,7 +96,7 @@ fun SignUpContent(
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PHONE)
 @Composable
 fun SignUpFinishScreenPreview() {
-    MemoryTheme {
+    PreviewTheme {
         SignUpFinishScreen(
             name = "홍길동"
         )
