@@ -1,12 +1,7 @@
 package com.memory.keeper.feature.home
 
-import android.net.Uri
-import android.util.Log
-import android.view.ViewGroup
 import android.widget.NumberPicker
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,22 +15,23 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -48,9 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -60,19 +56,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import coil.compose.AsyncImage
 import com.memory.keeper.R
 import com.memory.keeper.core.Dimens
+import com.memory.keeper.data.dto.request.UserInfoRequest
 import com.memory.keeper.data.dto.response.DailyResponse
 import com.memory.keeper.data.dto.response.MonthlyResponse
+import com.memory.keeper.feature.chat.ExoVideoPlayer
 import com.memory.keeper.feature.main.TopBar
+import com.memory.keeper.feature.prompt.ContentBox
+import com.memory.keeper.feature.prompt.MemoryTextField
+import com.memory.keeper.feature.util.PreviewTheme
 import com.memory.keeper.ui.theme.MemoryTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -82,13 +79,14 @@ import java.time.YearMonth
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var isExpanded by remember { mutableStateOf(false) }
     val role by viewModel.role.collectAsStateWithLifecycle()
     val userName by viewModel.userName.collectAsStateWithLifecycle()
     val monthResponse by viewModel.monthlyResponse.collectAsStateWithLifecycle()
     val dailyResponse by viewModel.dailyResponse.collectAsStateWithLifecycle()
     val patientNames by viewModel.patientNames.collectAsStateWithLifecycle()
     val selectedUserId by viewModel.selectedUserId.collectAsStateWithLifecycle()
+    val userId by viewModel.userId.collectAsStateWithLifecycle()
 
     LaunchedEffect(role) {
         if(role != null && role != "PATIENT"){
@@ -102,53 +100,40 @@ fun HomeScreen(
             isPatient = role == "PATIENT",
             isHome = true,
             userName = userName,
-            patientName = if(patientNames.isNotEmpty()) patientNames[selectedIndex] else null,
-            selectedIndex = selectedIndex,
+            isExpanded = isExpanded,
+            patients = patientNames,
             onClick = { index ->
-                selectedIndex = index
                 viewModel.setSelectedUserId(index)
             },
+            onDismiss = {
+                isExpanded = false
+            }
         )
-        when(selectedIndex){
-            0 -> RecordContent(
-                isHealer = role == "HEALER",
-                monthResponse = monthResponse,
-                dailyResponse = dailyResponse,
-                getMonthlyRecord = viewModel::getMonthlyRecord,
-                getDailyRecord = { date ->
-                    selectedUserId?.let { id ->
-                        viewModel.getDailyRecord(date, id)
-                    }
+        HomeScreenContent(
+            isHealer = role == "HEALER",
+            monthResponse = monthResponse,
+            dailyResponse = dailyResponse,
+            getMonthlyRecord = viewModel::getMonthlyRecord,
+            getDailyRecord = { date ->
+                selectedUserId?.let { id ->
+                    viewModel.getDailyRecord(date, id)
+                } ?: run {
+                    viewModel.getDailyRecord(date, userId!!)
                 }
-            )
-            1 -> HomeUserContent(
-                viewModel = viewModel
-            )
-        }
-    }
-}
-
-
-
-@Composable
-private fun HomeUserContent(viewModel: HomeViewModel){
-    Column(
-        modifier = Modifier.padding(Dimens.gapLarge),
-        verticalArrangement = Arrangement.spacedBy(Dimens.gapHuge)
-    ) {
-        AIChatScreen(
-            viewModel = viewModel
+            },
+            onSaveFeedback = viewModel::saveFeedback,
         )
     }
 }
 
 @Composable
-private fun RecordContent(
+private fun HomeScreenContent(
     isHealer: Boolean = false,
     monthResponse : List<MonthlyResponse> = emptyList(),
     dailyResponse: DailyResponse? = null,
     getMonthlyRecord: (String) -> Unit,
-    getDailyRecord: (String) -> Unit
+    getDailyRecord: (String) -> Unit,
+    onSaveFeedback: (String, Long, String) -> Unit,
 ){
     var showDetail by remember { mutableStateOf(false) }
     val adaptiveInfo = currentWindowAdaptiveInfo()
@@ -165,10 +150,10 @@ private fun RecordContent(
     if(!isTablet){
         Box(modifier = Modifier.fillMaxSize()){
             LazyColumn(
-                modifier = Modifier.padding(horizontal = Dimens.gapMedium, vertical = Dimens.gapLarge)
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 40.dp)
                     .imePadding(),
                 state = listState,
-                verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 item {
                     SimpleCalendar(
@@ -184,7 +169,8 @@ private fun RecordContent(
                     item {
                         RecordDetailScreen(
                             isHealer = isHealer,
-                            dailyResponse = dailyResponse
+                            dailyResponse = dailyResponse,
+                            onSaveFeedback = onSaveFeedback
                         )
                     }
                 }
@@ -231,6 +217,7 @@ private fun RecordContent(
                         RecordDetailScreen(
                             isHealer = isHealer,
                             dailyResponse = dailyResponse,
+                            onSaveFeedback = onSaveFeedback
                         )
                     }
                 }
@@ -243,189 +230,188 @@ private fun RecordContent(
 private fun RecordDetailScreen(
     isHealer: Boolean,
     dailyResponse: DailyResponse,
+    onSaveFeedback: (String, Long, String) -> Unit,
+    //통계 추가,
 ){
-    val imagePagerState = rememberPagerState(pageCount = {
-        dailyResponse.imageUrls.size
-    })
-    val videoPagerState = rememberPagerState(pageCount = {
-        dailyResponse.videoUrls.size
-    })
+    val option = listOf("전체", "대화", "통계")
+    var selectedOption by remember { mutableStateOf(option[0]) }
     var feedback by remember { mutableStateOf("") }
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = Dimens.gapLarge),
-        verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge),
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(30.dp),
     ){
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(
-                text = "대화 기록",
-                style = MemoryTheme.typography.header,
-                color = MemoryTheme.colors.textPrimary
-            )
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(Dimens.gapMedium)
+            Card(
+                modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MemoryTheme.colors.surface,
+                ),
             ) {
-                Text(
-                    text = dailyResponse.conversation,
-                    style = MemoryTheme.typography.body,
-                    color = MemoryTheme.colors.textPrimary,
-                    softWrap = true
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    option.forEach {
+                        Text(
+                            text = it,
+                            style = MemoryTheme.typography.headlineSmall,
+                            color = if(selectedOption == it) MemoryTheme.colors.primary else MemoryTheme.colors.textSecondary,
+                            modifier = Modifier.clickable{
+                                selectedOption = it
+                            }
+                        )
+                    }
+                }
+            }
+            Card(
+                modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MemoryTheme.colors.surface,
+                ),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    dailyResponse.conversations.forEach { conversation ->
+                        if(conversation.contains("assistant")){
+                            Text(
+                                modifier = Modifier.padding(vertical = 12.dp, horizontal = 14.dp),
+                                text = conversation.replace("assistant:", ""),
+                                style = MemoryTheme.typography.body,
+                                color = MemoryTheme.colors.textPrimary,
+                            )
+                        } else {
+                            Column(
+                                modifier = Modifier.wrapContentSize().background(
+                                    color = Color(0xFFEFEFEF),
+                                    shape = RoundedCornerShape(6.dp)
+                                ).align(Alignment.End),
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(
+                                        vertical = 12.dp,
+                                        horizontal = 14.dp
+                                    ),
+                                    text = conversation.replace("user:", ""),
+                                    style = MemoryTheme.typography.body,
+                                    color = MemoryTheme.colors.textPrimary,
+                                )
+                            }
+                        }
+                    }
+                    if (dailyResponse.imageUrls != null && dailyResponse.imageUrls.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            AsyncImage(
+                                model = R.drawable.ai_image,
+                                contentDescription = "image",
+                                alignment = Alignment.Center,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxWidth()
+                                    .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                            )
+                            Text(
+                                text = "가족사진 - 1970년대 추억",
+                                style = MemoryTheme.typography.description,
+                                color = MemoryTheme.colors.textPrimary
+                            )
+                            Text(
+                                text = "AI가 생성한 이미지",
+                                style = MemoryTheme.typography.badge,
+                                color = MemoryTheme.colors.textSecondary
+                            )
+                        }
+                    }
+                }
             }
         }
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(
-                text = "이미지",
-                style = MemoryTheme.typography.header,
-                color = MemoryTheme.colors.textPrimary
-            )
-            if (dailyResponse.imageUrls.isNotEmpty()) {
-                HorizontalPager(state = imagePagerState){ page ->
-                    val image = dailyResponse.imageUrls[page]
-                    AsyncImage(
-                        model = image,
-                        contentDescription = "image",
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxWidth()
-                            .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
-                    )
-                }
+            Card(
+                modifier = Modifier.fillMaxWidth().widthIn(Dimens.maxPhoneWidth).wrapContentHeight(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MemoryTheme.colors.surface,
+                ),
+            ){
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    repeat(dailyResponse.imageUrls.size) { index ->
-                        val isSelected = imagePagerState.currentPage == index
-                        Box(
-                            modifier = Modifier
-                                .padding(horizontal = 4.dp)
-                                .size(if (isSelected) 10.dp else 8.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (isSelected) MemoryTheme.colors.textPrimary
-                                    else MemoryTheme.colors.divider
-                                )
-                        )
-                    }
-                }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth().height(200.dp)
-                        .border(border = BorderStroke(
-                            width = 1.dp,
-                            color = MemoryTheme.colors.divider
-                        ), shape = RoundedCornerShape(Dimens.cornerRadius)),
-                    contentAlignment = Alignment.Center
-                ){
                     Text(
-                        text = "이미지가 없습니다.",
-                        style = MemoryTheme.typography.body,
+                        text = "전체",
+                        style = MemoryTheme.typography.headlineSmall,
+                        color = MemoryTheme.colors.primary
+                    )
+                    Text(
+                        text = "이미지",
+                        style = MemoryTheme.typography.headlineSmall,
+                        color = MemoryTheme.colors.textSecondary
+                    )
+                    Text(
+                        text = "영상",
+                        style = MemoryTheme.typography.headlineSmall,
                         color = MemoryTheme.colors.textSecondary
                     )
                 }
             }
-        }
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(Dimens.gapLarge)
-        ){
-            Text(
-                text = "영상",
-                style = MemoryTheme.typography.header,
-                color = MemoryTheme.colors.textPrimary
-            )
-            if(dailyResponse.videoUrls.isNotEmpty()) {
-                HorizontalPager(state = videoPagerState){ page ->
-                    val video = dailyResponse.videoUrls[page]
-                    ExoVideoPlayer(video.toUri())
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    repeat(dailyResponse.videoUrls.size) { index ->
-                        val isSelected = videoPagerState.currentPage == index
-                        Box(
-                            modifier = Modifier
-                                .padding(horizontal = 4.dp)
-                                .size(if (isSelected) 10.dp else 8.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (isSelected) MemoryTheme.colors.textPrimary
-                                    else MemoryTheme.colors.divider
-                                )
-                        )
-                    }
-                }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth().height(200.dp)
-                        .border(border = BorderStroke(
-                            width = 1.dp,
-                            color = MemoryTheme.colors.divider
-                        ), shape = RoundedCornerShape(Dimens.cornerRadius)),
-                    contentAlignment = Alignment.Center
-                ){
-                    Text(
-                        text = "영상이 없습니다.",
-                        style = MemoryTheme.typography.body,
-                        color = MemoryTheme.colors.textSecondary
-                    )
-                }
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                AsyncImage(
+                    model = R.drawable.ai_image,
+                    contentDescription = "image",
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxWidth()
+                        .clip(shape = RoundedCornerShape(Dimens.cornerRadius))
+                )
+                ExoVideoPlayer()
             }
         }
         if(isHealer){
             ContentBox(
-                title = "피드백",
-                text = feedback,
-                placeHolder = "피드백을 입력해 주세요",
-                onChange = {
-                    feedback = it
-                },
-                focusManager = LocalFocusManager.current
+                header = "피드백",
+                content = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        MemoryTextField(
+                            text = feedback,
+                            placeHolder = Pair("", "피드백을 입력해주세요."),
+                            onChange = {
+                                feedback = it
+                            },
+                            focusManager = LocalFocusManager.current
+                        )
+                        Button(
+                            modifier = Modifier.align(Alignment.End),
+                            onClick = {
+                                onSaveFeedback(feedback, dailyResponse.userId, dailyResponse.dailyDayRecording)
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MemoryTheme.colors.primary,
+                                contentColor = MemoryTheme.colors.textOnPrimary,
+                            ),
+                            shape = RectangleShape
+                        ) {
+                            Text(
+                                text = "저장",
+                                style = MemoryTheme.typography.button,
+                            )
+                        }
+                    }
+                }
             )
         }
-    }
-}
-
-@Composable
-private fun ExoVideoPlayer(videoUri: Uri) {
-    val context = LocalContext.current
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(videoUri))
-            prepare()
-            playWhenReady = true
-        }
-    }
-
-    AndroidView(
-        factory = {
-            PlayerView(it).apply {
-                player = exoPlayer
-                useController = true
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    600
-                )
-            }
-        },
-        modifier = Modifier.fillMaxWidth().height(200.dp)
-    )
-
-    DisposableEffect(Unit) {
-        onDispose { exoPlayer.release() }
     }
 }
 
@@ -494,8 +480,9 @@ private fun SimpleCalendar(
                         if (it == 0 && dayOfWeek < firstDayOfMonth || day > daysInMonth) {
                             Box(modifier = Modifier.weight(1f)) { }
                         } else {
+                            val formattedDay = String.format("%02d", day)
                             val dayRecord = monthResponse.firstOrNull { record ->
-                                record.monthlyDayRecording == "${currentMonth}-${day}"
+                                record.monthlyDayRecording == "${currentMonth}-${formattedDay}"
                             }
                             Column(
                                 modifier = Modifier.weight(1f),
@@ -509,7 +496,7 @@ private fun SimpleCalendar(
                                             color = MemoryTheme.colors.calendarBg,
                                             shape = CircleShape
                                         ).clickable{
-                                            if(dayRecord != null ){
+                                            if(dayRecord != null){
                                                 onClick(dayRecord.monthlyDayRecording)
                                             }
                                         },
@@ -518,15 +505,6 @@ private fun SimpleCalendar(
                                     if(dayRecord != null && dayRecord.imageUrl != null){
                                         AsyncImage(
                                             model = dayRecord.imageUrl,
-                                            contentDescription = "image",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier.size(Dimens.circle)
-                                                .clip(CircleShape)
-                                        )
-                                    }
-                                    if(day == 15){
-                                        AsyncImage(
-                                            model = R.drawable.ai_image,
                                             contentDescription = "image",
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.size(Dimens.circle)
@@ -577,7 +555,7 @@ private fun DatePickerDialog(
     ) {
         Column(
             modifier = Modifier
-                .background(color = MemoryTheme.colors.box, shape = RoundedCornerShape(Dimens.cornerRadius))
+                .background(color = MemoryTheme.colors.onPrimary, shape = RoundedCornerShape(Dimens.cornerRadius))
                 .padding(Dimens.gapHuge),
             verticalArrangement = Arrangement.spacedBy(Dimens.gapMedium),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -680,23 +658,49 @@ private fun DatePickerDialog(
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PHONE)
 @Composable
 fun HomeScreenPreview() {
-    MemoryTheme {
-        HomeScreen()
+    PreviewTheme {
+        HomeScreenContent(
+            isHealer = true,
+            monthResponse = emptyList(),
+            dailyResponse = null,
+            getMonthlyRecord = {},
+            getDailyRecord = {},
+            onSaveFeedback = {_,_,_ ->}
+        )
     }
 }
 
-//@Preview(showBackground = true, showSystemUi = true, device = Devices.TABLET)
-//@Composable
-//fun HomeScreenTabletPreview() {
-//    MemoryTheme {
-//        HomeScreen()
-//    }
-//}
+@Preview(showBackground = true, device = Devices.PHONE)
+@Composable
+fun RecordDetailScreenPreview() {
+    PreviewTheme {
+        RecordDetailScreen(
+            isHealer = true,
+            dailyResponse = DailyResponse(
+                conversations = listOf(
+                    "assistant: 안녕하세요. 오늘 기분이 어떠신가요?",
+                    "user: 오늘은 정말 좋은 하루였어요!",
+                    "assistant: 그렇군요. 어떤 일이 있었나요?",
+                    "user: 친구들과 함께 산책을 했어요."
+                ),
+                createdAt = "",
+                dailyDayRecording ="",
+                feedback = null,
+                id = 0L,
+                userId = 0L,
+                imageUrls = listOf(),
+                updatedAt = "",
+                videoUrl = null
+            ),
+            onSaveFeedback = {_,_,_ ->}
+        )
+    }
+}
 
 @Preview
 @Composable
 fun DatePickerDialogPreview(){
-    MemoryTheme {
+    PreviewTheme {
         DatePickerDialog(
             year = 2023,
             month = 10,

@@ -1,19 +1,17 @@
 package com.memory.keeper.feature.home
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.memory.keeper.core.Resource
 import com.memory.keeper.data.dto.response.DailyResponse
 import com.memory.keeper.data.dto.response.MonthlyResponse
-import com.memory.keeper.data.repository.AIRepository
+import com.memory.keeper.data.dto.response.Topic
+import com.memory.keeper.data.repository.ChatRepository
 import com.memory.keeper.data.repository.UserRepository
-import com.memory.keeper.feature.prompt.PromptUIEvent
-import com.memory.keeper.feature.prompt.PromptUIState
+import com.memory.keeper.feature.chat.ChatUiEvent
+import com.memory.keeper.feature.chat.ChatUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,21 +23,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val aiRepository: AIRepository,
     private val userRepository: UserRepository
 ): ViewModel() {
-    val uiState: MutableStateFlow<HomeUIState> = MutableStateFlow(HomeUIState.Idle)
+    val uiState: MutableStateFlow<HomeUIState> = MutableStateFlow(HomeUIState.Loading)
 
     private val _eventFlow: MutableSharedFlow<HomeUIEvent> = MutableSharedFlow()
     val eventFlow = _eventFlow.asSharedFlow()
-
-    private val _aiResponse: MutableStateFlow<String?> = MutableStateFlow(null)
-    val aiResponse: StateFlow<String?> = _aiResponse.asStateFlow()
 
     private val _monthlyResponse: MutableStateFlow<List<MonthlyResponse>> = MutableStateFlow(emptyList())
     val monthlyResponse: StateFlow<List<MonthlyResponse>> = _monthlyResponse.asStateFlow()
@@ -53,6 +46,9 @@ class HomeViewModel @Inject constructor(
     private val _userName = MutableStateFlow<String?>(null)
     val userName: StateFlow<String?> = _userName.asStateFlow()
 
+    private val _userId = MutableStateFlow<Long?>(null)
+    val userId: StateFlow<Long?> = _userId.asStateFlow()
+
     private val _patientIds: MutableStateFlow<List<Long>> = MutableStateFlow(emptyList())
     val patientIds: StateFlow<List<Long>> = _patientIds.asStateFlow()
 
@@ -64,6 +60,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         getMyRole()
+        getUserId()
         getMonthlyRecord(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM")))
         getUserName()
     }
@@ -131,16 +128,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun startChat(userPrompt: String) {
+    fun saveFeedback(feedback: String, patientId: Long, date: String) {
         viewModelScope.launch {
-            aiRepository.startChat(userPrompt).collectLatest { it ->
+            userRepository.saveFeedback(feedback, patientId, date).collectLatest {
                 when (it) {
                     is Resource.Success -> {
-                        _aiResponse.value = it.data?.message
                         uiState.value = HomeUIState.Idle
                     }
                     is Resource.Error -> {
-                        _aiResponse.value = it.message
+                        _eventFlow.emit(HomeUIEvent.ShowToast(it.message ?: "알 수 없는 오류가 발생했어요."))
                     }
                     is Resource.Loading -> {
                         uiState.value = HomeUIState.Loading
@@ -162,9 +158,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun getUserId(){
+        viewModelScope.launch {
+            _userId.update { userRepository.getUserId() }
+        }
+    }
+
     fun setSelectedUserId(index: Int) {
         _selectedUserId.value = patientIds.value[index]
     }
+
 }
 
 @Stable
