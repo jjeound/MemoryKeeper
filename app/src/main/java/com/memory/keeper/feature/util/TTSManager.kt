@@ -32,7 +32,6 @@ class TTSManager(context: Context) : TextToSpeech.OnInitListener {
             override fun onDone(utteranceId: String?) {
                 onDone()
             }
-
             override fun onError(utteranceId: String?) {}
             override fun onStart(utteranceId: String?) {}
         })

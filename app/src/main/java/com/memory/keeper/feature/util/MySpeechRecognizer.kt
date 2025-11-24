@@ -8,6 +8,7 @@ import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import java.util.Locale
 
 
@@ -56,6 +57,7 @@ class MySpeechRecognizer(
 
     fun start() {
         if (isListening) return
+        Log.d("Speech", "started")
         startTime = System.currentTimeMillis()
         isListening = true
         isPaused = false
@@ -68,6 +70,7 @@ class MySpeechRecognizer(
     }
 
     fun stop() {
+        Log.d("Speech", "stopped")
         isListening = false
         recognizer.stopListening()
         recognizer.cancel()
@@ -75,12 +78,15 @@ class MySpeechRecognizer(
     }
 
     fun pause() {
+        Log.d("Speech", "paused")
         isPaused = true
+        isListening = false
         recognizer.stopListening()
     }
 
     fun resume() {
         if (!isPaused || !isListening) return
+        Log.d("Speech", "resumed")
         isPaused = false
         listen()
     }
