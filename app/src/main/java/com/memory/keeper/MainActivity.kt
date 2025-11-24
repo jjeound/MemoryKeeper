@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import com.memory.keeper.feature.main.MainScreen
 import com.memory.keeper.navigation.AppComposeNavigator
 import com.memory.keeper.navigation.LocalComposeNavigator
@@ -20,7 +19,6 @@ class MainActivity : ComponentActivity() {
     internal lateinit var composeNavigator: AppComposeNavigator<Screen>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
         installSplashScreen()
         setContent {
