@@ -160,17 +160,18 @@ class UserRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             emit(Resource.Error(e.toString()))
         } catch (e: HttpException) {
-            val errorMessage = try {
+            val errorCode = try {
                 val errorJson = e.response()?.errorBody()?.string()
                 val errorObj = JSONObject(errorJson ?: "")
-                errorObj.getString("message")
+                errorObj.getString("code")
             } catch (_: Exception) {
                 "알 수 없는 오류가 발생했어요."
             }
-            emit(Resource.Error(errorMessage))
+            emit(Resource.Error(errorCode))
         }
     }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override fun uploadUserInfoPhoto(
         id: Long,
         description: String,
@@ -203,6 +204,7 @@ class UserRepositoryImpl @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override fun deleteUserInfoPhoto(photoId: Long): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
@@ -226,6 +228,7 @@ class UserRepositoryImpl @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override fun modifyUserInfoPhoto(
         photoId: Long,
         description: String,
@@ -254,6 +257,7 @@ class UserRepositoryImpl @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override fun getUserInfoPhotos(userInfoId: Long): Flow<Resource<List<UserInfoPhoto>>> = flow {
         emit(Resource.Loading())
         try {
@@ -277,6 +281,7 @@ class UserRepositoryImpl @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override fun getMonthlyRecord(date: String): Flow<Resource<List<MonthlyResponse>>> = flow {
         emit(Resource.Loading())
         try {
@@ -300,6 +305,7 @@ class UserRepositoryImpl @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override fun getDailyRecord(date: String, userId: Long): Flow<Resource<DailyResponse>> = flow {
         emit(Resource.Loading())
         try {
@@ -323,10 +329,39 @@ class UserRepositoryImpl @Inject constructor(
         }
     }.flowOn(ioDispatcher)
 
+    @WorkerThread
     override fun saveConversation(date: String): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
         try {
             val response = userService.saveConversation(date)
+            if (response.isSuccess){
+                emit(Resource.Success(response.result))
+            } else {
+                emit(Resource.Error(response.message))
+            }
+        } catch (e: IOException) {
+            emit(Resource.Error(e.toString()))
+        } catch (e: HttpException) {
+            val errorMessage = try {
+                val errorJson = e.response()?.errorBody()?.string()
+                val errorObj = JSONObject(errorJson ?: "")
+                errorObj.getString("message")
+            } catch (_: Exception) {
+                "알 수 없는 오류가 발생했어요."
+            }
+            emit(Resource.Error(errorMessage))
+        }
+    }.flowOn(ioDispatcher)
+
+    @WorkerThread
+    override fun saveFeedback(
+        feedback: String,
+        patientId: Long,
+        date: String
+    ): Flow<Resource<String>>  = flow {
+        emit(Resource.Loading())
+        try {
+            val response = userService.saveFeedback(feedback,patientId, date)
             if (response.isSuccess){
                 emit(Resource.Success(response.result))
             } else {

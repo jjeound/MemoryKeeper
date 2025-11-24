@@ -44,10 +44,6 @@ interface UserRepository {
     @WorkerThread
     fun getUserInfoPhotos(userInfoId: Long): Flow<Resource<List<UserInfoPhoto>>>
 
-//    @WorkerThread
-//    fun saveDailyRecord(
-//        conversation: String, feedback: String?, dailyDayRecording: String,
-//    )
     @WorkerThread
     fun getMonthlyRecord(date: String): Flow<Resource<List<MonthlyResponse>>>
 
@@ -56,6 +52,9 @@ interface UserRepository {
 
     @WorkerThread
     fun saveConversation(date: String): Flow<Resource<String>>
+
+    @WorkerThread
+    fun saveFeedback(feedback: String, patientId: Long, date: String): Flow<Resource<String>>
 
     suspend fun getMyRole(): String?
     suspend fun getUserName(): String?
