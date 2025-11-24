@@ -3,9 +3,9 @@ package com.memory.keeper.di
 import com.memory.keeper.data.util.ApiResponseAdapterFactory
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.memory.keeper.core.Constants.BASE_URL
+import com.memory.keeper.BuildConfig
 import com.memory.keeper.data.repository.TokenRepository
-import com.memory.keeper.data.service.AIService
+import com.memory.keeper.data.service.ChatService
 import com.memory.keeper.data.service.LoginService
 import com.memory.keeper.data.service.SignUpService
 import com.memory.keeper.data.service.TokenService
@@ -46,7 +46,7 @@ object NetworkModule {
             .addInterceptor(AuthInterceptor(tokenRepository))
             .addNetworkInterceptor(
                 HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BASIC
+                    level = HttpLoggingInterceptor.Level.BODY
                 }
             )
             .build()
@@ -59,7 +59,7 @@ object NetworkModule {
         okHttpClient: OkHttpClient
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
@@ -69,7 +69,7 @@ object NetworkModule {
     @Singleton
     fun provideLoginService(gson: Gson): LoginService {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(OkHttpClient.Builder()
                 .addNetworkInterceptor(
@@ -85,8 +85,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAIService(retrofit: Retrofit): AIService {
-        return retrofit.create(AIService::class.java)
+    fun provideChatService(retrofit: Retrofit): ChatService {
+        return retrofit.create(ChatService::class.java)
     }
 
     @Provides
@@ -105,7 +105,7 @@ object NetworkModule {
     @Singleton
     fun provideTokenService(gson: Gson): TokenService {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(TokenService::class.java)

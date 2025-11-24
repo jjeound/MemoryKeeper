@@ -1,14 +1,18 @@
 package com.memory.keeper.di
 
-import com.memory.keeper.data.repository.AIRepository
-import com.memory.keeper.data.repository.AIRepositoryImpl
+import com.memory.keeper.data.repository.ChatRepository
+import com.memory.keeper.data.repository.ChatRepositoryFakeImpl
+import com.memory.keeper.data.repository.ChatRepositoryImpl
 import com.memory.keeper.data.repository.LoginRepository
+import com.memory.keeper.data.repository.LoginRepositoryFakeImpl
 import com.memory.keeper.data.repository.LoginRepositoryImpl
 import com.memory.keeper.data.repository.SignUpRepository
+import com.memory.keeper.data.repository.SignUpRepositoryFakeImpl
 import com.memory.keeper.data.repository.SignUpRepositoryImpl
 import com.memory.keeper.data.repository.TokenRepository
 import com.memory.keeper.data.repository.TokenRepositoryImpl
 import com.memory.keeper.data.repository.UserRepository
+import com.memory.keeper.data.repository.UserRepositoryFakeImpl
 import com.memory.keeper.data.repository.UserRepositoryImpl
 import dagger.Binds
 import dagger.Module
@@ -32,5 +36,5 @@ internal interface DataModule {
     fun bindsUserRepository(impl: UserRepositoryImpl): UserRepository
 
     @Binds
-    fun bindsAIRepository(impl: AIRepositoryImpl): AIRepository
+    fun bindsChatRepository(impl: ChatRepositoryImpl): ChatRepository
 }
