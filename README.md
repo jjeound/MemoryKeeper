@@ -38,6 +38,7 @@
 | Language | Kotlin |
 | UI | Jetpack Compose |
 | Architecture | MVVM / App Architecture |
+| Auth | JWT |
 | Async | Coroutine / Flow |
 | Network | Retrofit |
 | ETC | SpeechRecognizer / TextToSpeech / ExoPlayer |
@@ -46,6 +47,7 @@
 
 ## 📱 주요 기능
 
+- 카카오 로그인
 - 보호자, 치매 환자, 치료사 모드 기능
 - 사용자 간 관계 설정 기능
 - 사용자의 데이터를 입력 받는 기능
