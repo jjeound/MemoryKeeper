@@ -25,8 +25,9 @@
 
 ## 🖼 Preview
 
-<img width="525" height="1107" alt="Image" src="https://velog.velcdn.com/images/wjdwlsdl321/post/5b321525-5ac5-4ac4-88b6-d04cc19be5a9/image.png" />
-<img width="525" height="1107" alt="Image" src="https://velog.velcdn.com/images/wjdwlsdl321/post/b02ed713-f18d-48e2-b29b-44d82cf3bfd6/image.png" />
+<img width="1620" height="820" alt="Image" src="https://github.com/user-attachments/assets/b758b5a5-f7cd-4952-9e2e-a24340828efe" />
+<img width="1620" height="820" alt="Image" src="https://github.com/user-attachments/assets/96fa270b-91f5-4dc7-b654-876cce1a3b72" />
+<img width="2035" height="820" alt="Image" src="https://github.com/user-attachments/assets/2c7cb956-b9ee-4864-a42f-fac0ceaa22f4" />
 
 ---
 
